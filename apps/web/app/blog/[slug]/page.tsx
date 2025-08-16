@@ -60,7 +60,7 @@ export default async function PostPage({ params }: PostPageProps) {
           <div className="mt-12 pt-8 border-t">
             <h3 className="text-lg font-semibold mb-4">Tags</h3>
             <div className="flex flex-wrap gap-2">
-              {post.tags.map((tag) => (
+            {post.tags.map((tag: string) => (
                 <Badge key={tag} variant="outline">
                   {tag}
                 </Badge>

@@ -1,57 +1,62 @@
 //apps/admin/app/api/posts/route.ts
-import { NextRequest, NextResponse } from 'next/server'
-import { getAllPosts, createPost } from '@/lib/mock-posts'
-import { getCategoryById } from '@/lib/mock-categories'
+
+import { NextRequest, NextResponse } from 'next/server';
+import { dataStore } from '@/lib/shared-data';
+
+// CORS headers for all responses
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+};
+
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 200, headers: corsHeaders });
+}
 
 export async function GET() {
- try {
-   const posts = getAllPosts()
-   return NextResponse.json({ posts })
- } catch (error) {
-   console.error('Failed to fetch posts:', error)
-   return NextResponse.json({ error: 'Failed to fetch posts' }, { status: 500 })
- }
+  try {
+    const posts = dataStore.posts.getAll();
+    return NextResponse.json({ 
+      posts, 
+      success: true, 
+      total: posts.length 
+    }, { headers: corsHeaders });
+  } catch (error) {
+    console.error('Failed to fetch posts:', error);
+    return NextResponse.json({ 
+      error: 'Failed to fetch posts',
+      success: false 
+    }, { status: 500, headers: corsHeaders });
+  }
 }
 
 export async function POST(request: NextRequest) {
- try {
-   const postData = await request.json()
-   
-   console.log('Received post data:', postData)
-   
-   // Get category information
-   let categoryName = 'General'
-   if (postData.categoryId) {
-     const category = getCategoryById(postData.categoryId)
-     if (category) {
-       categoryName = category.name
-       console.log(`Found category: ${categoryName} for ID: ${postData.categoryId}`)
-     } else {
-       console.warn(`Category not found for ID: ${postData.categoryId}`)
-     }
-   }
-   
-   // Create post with category information
-   const newPost = createPost({
-     title: postData.title,
-     slug: postData.slug,
-     excerpt: postData.excerpt,
-     content: postData.content,
-     status: postData.status,
-     featured: postData.featured || false,
-     categoryId: postData.categoryId || '',
-     categoryName: categoryName,
-     publishedAt: postData.status === 'published' ? new Date().toISOString() : null,
-     seoTitle: postData.seoTitle,
-     seoDescription: postData.seoDescription,
-     tags: postData.tags || []
-   })
-   
-   console.log('Created post with category:', newPost)
-   
-   return NextResponse.json({ post: newPost }, { status: 201 })
- } catch (error) {
-   console.error('Failed to create post:', error)
-   return NextResponse.json({ error: 'Failed to create post' }, { status: 500 })
- }
+  try {
+    const postData = await request.json();
+    
+    const post = dataStore.posts.create({
+      title: postData.title,
+      content: postData.content,
+      excerpt: postData.excerpt || postData.content.substring(0, 200) + '...',
+      slug: postData.slug,
+      status: postData.status || 'draft',
+      featured: postData.featured || false,
+      categories: postData.categories || [],
+      tags: postData.tags || [],
+      author: postData.author || 'Admin',
+      seo: postData.seo || {}
+    });
+    
+    return NextResponse.json({ 
+      post, 
+      success: true 
+    }, { status: 201, headers: corsHeaders });
+  } catch (error) {
+    console.error('Failed to create post:', error);
+    return NextResponse.json({ 
+      error: 'Failed to create post',
+      success: false 
+    }, { status: 500, headers: corsHeaders });
+  }
 }

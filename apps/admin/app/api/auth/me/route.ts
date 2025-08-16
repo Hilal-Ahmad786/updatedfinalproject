@@ -1,23 +1,30 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { mockGetUser } from '@/lib/mock-auth'
+import { NextResponse } from 'next/server';
 
-export async function GET(request: NextRequest) {
-  try {
-    const sessionId = request.cookies.get('admin-session')?.value
-
-    if (!sessionId) {
-      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
+export async function GET() {
+  // Return mock user data for now
+  const user = {
+    id: '1',
+    name: 'Admin',
+    email: 'admin@blog.com',
+    role: 'admin'
+  };
+  
+  return NextResponse.json({ user, success: true }, {
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET',
+      'Access-Control-Allow-Headers': 'Content-Type',
     }
+  });
+}
 
-    const user = await mockGetUser(sessionId)
-
-    if (!user) {
-      return NextResponse.json({ error: 'Invalid session' }, { status: 401 })
+export async function OPTIONS() {
+  return new NextResponse(null, { 
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET',
+      'Access-Control-Allow-Headers': 'Content-Type',
     }
-
-    return NextResponse.json({ user })
-  } catch (error) {
-    console.error('Auth check error:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
-  }
+  });
 }

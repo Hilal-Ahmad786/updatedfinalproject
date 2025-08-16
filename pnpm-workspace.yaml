@@ -1,3 +1,5 @@
 packages:
-  - "apps/*"
-  - "packages/*"
+  - 'apps/*'
+  - 'packages/ui'
+  - 'packages/types'
+  - 'packages/hooks'

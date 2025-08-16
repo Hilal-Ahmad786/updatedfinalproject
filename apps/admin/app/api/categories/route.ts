@@ -1,39 +1,51 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { getAllCategories, createCategory } from '@/lib/mock-categories'
+//apps/admin/app/api/categories/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+import { dataStore } from '@/lib/shared-data';
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+};
+
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 200, headers: corsHeaders });
+}
 
 export async function GET() {
   try {
-    const categories = getAllCategories()
-    return NextResponse.json({ categories })
+    const categories = dataStore.categories.getAll();
+    return NextResponse.json({ 
+      categories, 
+      success: true, 
+      total: categories.length 
+    }, { headers: corsHeaders });
   } catch (error) {
-    console.error('Failed to fetch categories:', error)
-    return NextResponse.json({ error: 'Failed to fetch categories' }, { status: 500 })
+    return NextResponse.json({ 
+      error: 'Failed to fetch categories',
+      success: false 
+    }, { status: 500, headers: corsHeaders });
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const categoryData = await request.json()
+    const data = await request.json();
     
-    console.log('Received category data:', categoryData)
+    const category = dataStore.categories.create({
+      name: data.name,
+      slug: data.slug,
+      description: data.description || ''
+    });
     
-    // Validate required fields
-    if (!categoryData.name || !categoryData.name.trim()) {
-      return NextResponse.json({ error: 'Category name is required' }, { status: 400 })
-    }
-    
-    const newCategory = createCategory({
-      name: categoryData.name.trim(),
-      slug: categoryData.slug || categoryData.name.toLowerCase().replace(/\s+/g, '-'),
-      description: categoryData.description || '',
-      color: categoryData.color || '#3B82F6'
-    })
-    
-    console.log('Created category:', newCategory)
-    
-    return NextResponse.json({ category: newCategory }, { status: 201 })
+    return NextResponse.json({ 
+      category, 
+      success: true 
+    }, { status: 201, headers: corsHeaders });
   } catch (error) {
-    console.error('Failed to create category:', error)
-    return NextResponse.json({ error: 'Failed to create category' }, { status: 500 })
+    return NextResponse.json({ 
+      error: 'Failed to create category',
+      success: false 
+    }, { status: 500, headers: corsHeaders });
   }
 }
