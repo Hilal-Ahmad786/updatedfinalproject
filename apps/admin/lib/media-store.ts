@@ -61,7 +61,10 @@ interface MediaFile {
       mediaCount: 0
     }
   ]
-  
+  export function getMediaCount(): number {
+    const mediaFiles = getAllFiles()
+    return mediaFiles.length
+  }
   // Default sample files
   const defaultFiles: MediaFile[] = [
     {
