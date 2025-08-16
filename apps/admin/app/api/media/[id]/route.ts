@@ -1,5 +1,18 @@
+// apps/admin/app/api/media/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server'
-import { getFileById, deleteFile, updateFile } from '@/lib/mock-media'
+import { getFileById, deleteFile, updateFile } from '@/lib/media-store'
+
+// Add CORS headers
+function addCorsHeaders(response: NextResponse) {
+  response.headers.set('Access-Control-Allow-Origin', '*')
+  response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+  response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+  return response
+}
+
+export async function OPTIONS() {
+  return addCorsHeaders(new NextResponse(null, { status: 200 }))
+}
 
 export async function GET(
   request: NextRequest,
@@ -8,12 +21,25 @@ export async function GET(
   try {
     const file = getFileById(params.id)
     if (!file) {
-      return NextResponse.json({ error: 'File not found' }, { status: 404 })
+      const response = NextResponse.json(
+        { error: 'File not found', success: false }, 
+        { status: 404 }
+      )
+      return addCorsHeaders(response)
     }
-    return NextResponse.json({ file })
+    
+    const response = NextResponse.json({
+      file,
+      success: true
+    })
+    return addCorsHeaders(response)
   } catch (error) {
     console.error('Failed to fetch file:', error)
-    return NextResponse.json({ error: 'Failed to fetch file' }, { status: 500 })
+    const response = NextResponse.json(
+      { error: 'Failed to fetch file', success: false }, 
+      { status: 500 }
+    )
+    return addCorsHeaders(response)
   }
 }
 
@@ -23,14 +49,38 @@ export async function PUT(
 ) {
   try {
     const updates = await request.json()
-    const updatedFile = updateFile(params.id, updates)
+    
+    // Validate updates
+    const allowedUpdates = ['altText', 'caption', 'tags', 'folder']
+    const filteredUpdates = Object.keys(updates)
+      .filter(key => allowedUpdates.includes(key))
+      .reduce((obj, key) => {
+        obj[key] = updates[key]
+        return obj
+      }, {} as any)
+
+    const updatedFile = updateFile(params.id, filteredUpdates)
     if (!updatedFile) {
-      return NextResponse.json({ error: 'File not found' }, { status: 404 })
+      const response = NextResponse.json(
+        { error: 'File not found', success: false }, 
+        { status: 404 }
+      )
+      return addCorsHeaders(response)
     }
-    return NextResponse.json({ file: updatedFile })
+    
+    const response = NextResponse.json({
+      file: updatedFile,
+      success: true,
+      message: 'File updated successfully'
+    })
+    return addCorsHeaders(response)
   } catch (error) {
     console.error('Failed to update file:', error)
-    return NextResponse.json({ error: 'Failed to update file' }, { status: 500 })
+    const response = NextResponse.json(
+      { error: 'Failed to update file', success: false }, 
+      { status: 500 }
+    )
+    return addCorsHeaders(response)
   }
 }
 
@@ -41,11 +91,25 @@ export async function DELETE(
   try {
     const deleted = deleteFile(params.id)
     if (!deleted) {
-      return NextResponse.json({ error: 'File not found' }, { status: 404 })
+      const response = NextResponse.json(
+        { error: 'File not found', success: false }, 
+        { status: 404 }
+      )
+      return addCorsHeaders(response)
     }
-    return NextResponse.json({ success: true })
+    
+    const response = NextResponse.json({
+      success: true,
+      message: 'File deleted successfully'
+    })
+    return addCorsHeaders(response)
   } catch (error) {
     console.error('Failed to delete file:', error)
-    return NextResponse.json({ error: 'Failed to delete file' }, { status: 500 })
+    const response = NextResponse.json(
+      { error: 'Failed to delete file', success: false }, 
+      { status: 500 }
+    )
+    return addCorsHeaders(response)
   }
 }
+
