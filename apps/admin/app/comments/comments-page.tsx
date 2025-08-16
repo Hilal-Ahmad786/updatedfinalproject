@@ -1,3 +1,6 @@
+// apps/admin/app/comments/comments-page.tsx
+// Enhanced version with real API integration
+
 'use client'
 
 import { useState, useEffect } from 'react'
@@ -5,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
+import { Textarea } from '@/components/ui/textarea'
 import { 
   MessageSquare, 
   Search, 
@@ -26,7 +30,10 @@ import {
   ThumbsDown,
   Ban,
   Mail,
-  ExternalLink
+  ExternalLink,
+  RefreshCw,
+  Plus,
+  MoreHorizontal
 } from 'lucide-react'
 
 interface Comment {
@@ -36,6 +43,7 @@ interface Comment {
   author: {
     name: string
     email: string
+    website?: string
     avatar?: string
     isRegistered: boolean
   }
@@ -68,11 +76,13 @@ export default function CommentsManagementPage() {
   const [comments, setComments] = useState<Comment[]>([])
   const [stats, setStats] = useState<CommentStats | null>(null)
   const [loading, setLoading] = useState(true)
+  const [updating, setUpdating] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [selectedComments, setSelectedComments] = useState<string[]>([])
   const [replyingTo, setReplyingTo] = useState<string | null>(null)
   const [replyContent, setReplyContent] = useState('')
+  const [showDetails, setShowDetails] = useState<string | null>(null)
 
   useEffect(() => {
     fetchComments()
@@ -81,103 +91,136 @@ export default function CommentsManagementPage() {
 
   const fetchComments = async () => {
     try {
-      // Mock data
-      setTimeout(() => {
-        setComments([
-          {
-            id: '1',
-            postId: 'post-1',
-            postTitle: 'Getting Started with Next.js',
-            author: {
-              name: 'John Doe',
-              email: 'john@example.com',
-              avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40',
-              isRegistered: true
-            },
-            content: 'Great article! Really helped me understand the basics of Next.js. Looking forward to more content like this.',
-            status: 'approved',
-            createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-            updatedAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-            likes: 5,
-            dislikes: 0,
-            isEdited: false,
-            ipAddress: '192.168.1.1',
-            userAgent: 'Mozilla/5.0...',
-            flagged: false,
-            flagReasons: []
-          },
-          {
-            id: '2',
-            postId: 'post-1',
-            postTitle: 'Getting Started with Next.js',
-            author: {
-              name: 'Jane Smith',
-              email: 'jane@example.com',
-              isRegistered: false
-            },
-            content: 'Thanks for sharing! Could you also cover deployment strategies?',
-            status: 'pending',
-            createdAt: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
-            updatedAt: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
-            likes: 2,
-            dislikes: 0,
-            isEdited: false,
-            ipAddress: '192.168.1.2',
-            userAgent: 'Mozilla/5.0...',
-            flagged: false,
-            flagReasons: []
-          },
-          {
-            id: '3',
-            postId: 'post-2',
-            postTitle: 'Advanced React Patterns',
-            author: {
-              name: 'Spam Bot',
-              email: 'spam@fake.com',
-              isRegistered: false
-            },
-            content: 'Check out my amazing product at spamlink.com! Buy now for 50% off!!!',
-            status: 'spam',
-            createdAt: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
-            updatedAt: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
-            likes: 0,
-            dislikes: 3,
-            isEdited: false,
-            ipAddress: '192.168.1.3',
-            userAgent: 'Bot/1.0',
-            flagged: true,
-            flagReasons: ['spam', 'inappropriate_content']
-          }
-        ])
-        setLoading(false)
-      }, 1000)
+      setLoading(true)
+      const response = await fetch('/api/comments')
+      if (response.ok) {
+        const data = await response.json()
+        setComments(data.comments || [])
+      } else {
+        console.error('Failed to fetch comments:', response.statusText)
+      }
     } catch (error) {
       console.error('Failed to fetch comments:', error)
+    } finally {
       setLoading(false)
     }
   }
 
   const fetchStats = async () => {
-    setStats({
-      total: 127,
-      approved: 89,
-      pending: 15,
-      spam: 18,
-      trash: 5,
-      todayCount: 8,
-      averagePerPost: 4.2
-    })
+    try {
+      const response = await fetch('/api/comments?stats=true')
+      if (response.ok) {
+        const data = await response.json()
+        setStats(data)
+      }
+    } catch (error) {
+      console.error('Failed to fetch stats:', error)
+    }
   }
 
   const updateCommentStatus = async (commentId: string, status: Comment['status']) => {
-    setComments(comments.map(comment => 
-      comment.id === commentId ? { ...comment, status } : comment
-    ))
+    try {
+      setUpdating(commentId)
+      const response = await fetch(`/api/comments/${commentId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status }),
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setComments(comments.map(comment => 
+          comment.id === commentId ? data.comment : comment
+        ))
+        // Refresh stats
+        fetchStats()
+      } else {
+        console.error('Failed to update comment status')
+      }
+    } catch (error) {
+      console.error('Failed to update comment:', error)
+    } finally {
+      setUpdating(null)
+    }
   }
 
   const deleteComment = async (commentId: string) => {
-    if (confirm('Are you sure you want to permanently delete this comment?')) {
-      setComments(comments.filter(comment => comment.id !== commentId))
+    if (!confirm('Are you sure you want to permanently delete this comment?')) return
+
+    try {
+      setUpdating(commentId)
+      const response = await fetch(`/api/comments/${commentId}`, {
+        method: 'DELETE',
+      })
+
+      if (response.ok) {
+        setComments(comments.filter(comment => comment.id !== commentId))
+        setSelectedComments(selectedComments.filter(id => id !== commentId))
+        // Refresh stats
+        fetchStats()
+      } else {
+        console.error('Failed to delete comment')
+      }
+    } catch (error) {
+      console.error('Failed to delete comment:', error)
+    } finally {
+      setUpdating(null)
+    }
+  }
+
+  const flagComment = async (commentId: string, reasons: string[] = ['inappropriate']) => {
+    try {
+      setUpdating(commentId)
+      const response = await fetch(`/api/comments/${commentId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ flagged: true, flagReasons: reasons }),
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setComments(comments.map(comment => 
+          comment.id === commentId ? data.comment : comment
+        ))
+      }
+    } catch (error) {
+      console.error('Failed to flag comment:', error)
+    } finally {
+      setUpdating(null)
+    }
+  }
+
+  const bulkUpdateStatus = async (status: Comment['status']) => {
+    if (selectedComments.length === 0) return
+    
+    try {
+      setUpdating('bulk')
+      
+      // Update each selected comment
+      const promises = selectedComments.map(commentId =>
+        fetch(`/api/comments/${commentId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ status }),
+        })
+      )
+
+      await Promise.all(promises)
+      
+      // Refresh data
+      await fetchComments()
+      await fetchStats()
+      setSelectedComments([])
+    } catch (error) {
+      console.error('Failed to bulk update:', error)
+    } finally {
+      setUpdating(null)
     }
   }
 
@@ -202,12 +245,29 @@ export default function CommentsManagementPage() {
   }
 
   const filteredComments = comments.filter(comment => {
-    const matchesSearch = comment.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         comment.author.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         comment.postTitle.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesSearch = comment.content.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1 ||
+                         comment.author.name.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1 ||
+                         comment.postTitle.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1 ||
+                         comment.author.email.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1
     const matchesStatus = statusFilter === 'all' || comment.status === statusFilter
     return matchesSearch && matchesStatus
   })
+
+  const toggleCommentSelection = (commentId: string) => {
+    setSelectedComments(prev => 
+      prev.indexOf(commentId) !== -1
+        ? prev.filter(id => id !== commentId)
+        : [...prev, commentId]
+    )
+  }
+
+  const toggleAllComments = (checked: boolean) => {
+    if (checked) {
+      setSelectedComments(filteredComments.map(c => c.id))
+    } else {
+      setSelectedComments([])
+    }
+  }
 
   if (loading) {
     return (
@@ -229,15 +289,39 @@ export default function CommentsManagementPage() {
             Manage and moderate user comments
           </p>
         </div>
+        
         <div className="flex items-center gap-2">
+          <Button 
+            variant="outline" 
+            onClick={fetchComments}
+            disabled={loading}
+          >
+            <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
           <Button variant="outline">
             <Flag className="h-4 w-4 mr-2" />
             Flagged ({comments.filter(c => c.flagged).length})
           </Button>
-          <Button>
-            <CheckCircle className="h-4 w-4 mr-2" />
-            Bulk Approve
-          </Button>
+          {selectedComments.length > 0 && (
+            <>
+              <Button
+                onClick={() => bulkUpdateStatus('approved')}
+                disabled={updating === 'bulk'}
+              >
+                <CheckCircle className="h-4 w-4 mr-2" />
+                Approve ({selectedComments.length})
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={() => bulkUpdateStatus('spam')}
+                disabled={updating === 'bulk'}
+              >
+                <AlertTriangle className="h-4 w-4 mr-2" />
+                Mark Spam
+              </Button>
+            </>
+          )}
         </div>
       </div>
 
@@ -350,10 +434,71 @@ export default function CommentsManagementPage() {
         </Card>
       ) : (
         <div className="space-y-4">
+          {/* Bulk actions header */}
+          <Card className="glass">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    checked={selectedComments.length === filteredComments.length && filteredComments.length > 0}
+                    onChange={(e) => toggleAllComments(e.target.checked)}
+                    className="rounded"
+                  />
+                  <span className="text-sm text-muted-foreground">
+                    {selectedComments.length > 0 
+                      ? `${selectedComments.length} of ${filteredComments.length} selected`
+                      : `${filteredComments.length} comments`
+                    }
+                  </span>
+                </div>
+                
+                {selectedComments.length > 0 && (
+                  <div className="flex items-center gap-2">
+                    <Button 
+                      size="sm" 
+                      onClick={() => bulkUpdateStatus('approved')}
+                      disabled={updating === 'bulk'}
+                    >
+                      Approve All
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={() => bulkUpdateStatus('spam')}
+                      disabled={updating === 'bulk'}
+                    >
+                      Mark as Spam
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant="destructive"
+                      onClick={() => bulkUpdateStatus('trash')}
+                      disabled={updating === 'bulk'}
+                    >
+                      Move to Trash
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Comments */}
           {filteredComments.map((comment) => (
-            <Card key={comment.id} className="glass hover:shadow-lg transition-all duration-200">
+            <Card key={comment.id} className={`glass hover:shadow-lg transition-all duration-200 ${
+              selectedComments.indexOf(comment.id) !== -1 ? 'ring-2 ring-primary' : ''
+            }`}>
               <CardContent className="p-6">
                 <div className="flex items-start gap-4">
+                  {/* Checkbox */}
+                  <input
+                    type="checkbox"
+                    checked={selectedComments.indexOf(comment.id) !== -1}
+                    onChange={() => toggleCommentSelection(comment.id)}
+                    className="mt-1 rounded"
+                  />
+
                   {/* Avatar */}
                   <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
                     {comment.author.avatar ? (
@@ -400,6 +545,14 @@ export default function CommentsManagementPage() {
                             <ExternalLink className="h-3 w-3" />
                             {comment.postTitle}
                           </span>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-auto p-0 text-xs"
+                            onClick={() => setShowDetails(showDetails === comment.id ? null : comment.id)}
+                          >
+                            <MoreHorizontal className="h-3 w-3" />
+                          </Button>
                         </div>
                       </div>
                       
@@ -416,6 +569,20 @@ export default function CommentsManagementPage() {
                     <div className="bg-muted/20 p-3 rounded-lg">
                       <p className="text-sm">{comment.content}</p>
                     </div>
+
+                    {/* Details (expandable) */}
+                    {showDetails === comment.id && (
+                      <div className="bg-muted/10 p-3 rounded-lg text-xs text-muted-foreground space-y-2">
+                        <div><strong>IP Address:</strong> {comment.ipAddress}</div>
+                        <div><strong>User Agent:</strong> {comment.userAgent}</div>
+                        {comment.flagReasons.length > 0 && (
+                          <div><strong>Flag Reasons:</strong> {comment.flagReasons.join(', ')}</div>
+                        )}
+                        {comment.author.website && (
+                          <div><strong>Website:</strong> {comment.author.website}</div>
+                        )}
+                      </div>
+                    )}
 
                     {/* Actions */}
                     <div className="flex items-center justify-between">
@@ -436,25 +603,52 @@ export default function CommentsManagementPage() {
                           <Button 
                             size="sm" 
                             onClick={() => updateCommentStatus(comment.id, 'approved')}
+                            disabled={updating === comment.id}
                           >
                             <CheckCircle className="h-4 w-4 mr-1" />
-                            Approve
+                            {updating === comment.id ? 'Updating...' : 'Approve'}
                           </Button>
                         )}
                         
+                        {comment.status === 'approved' && (
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => updateCommentStatus(comment.id, 'pending')}
+                            disabled={updating === comment.id}
+                          >
+                            <Clock className="h-4 w-4 mr-1" />
+                            Unapprove
+                          </Button>
+                        )}
+
                         <Button 
                           size="sm" 
                           variant="outline"
                           onClick={() => updateCommentStatus(comment.id, 'spam')}
+                          disabled={updating === comment.id}
                         >
                           <AlertTriangle className="h-4 w-4 mr-1" />
                           Spam
                         </Button>
 
+                        {!comment.flagged && (
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => flagComment(comment.id)}
+                            disabled={updating === comment.id}
+                          >
+                            <Flag className="h-4 w-4 mr-1" />
+                            Flag
+                          </Button>
+                        )}
+
                         <Button 
                           size="sm" 
                           variant="destructive"
                           onClick={() => deleteComment(comment.id)}
+                          disabled={updating === comment.id}
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
