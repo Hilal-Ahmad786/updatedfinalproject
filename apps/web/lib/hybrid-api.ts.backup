@@ -1,5 +1,5 @@
 // apps/web/lib/hybrid-api.ts
-// Enhanced version with proper category post counts
+// Enhanced version with better database integration
 
 import { BlogPost as Post, Category } from '@/types/blog';
 import { getAllPosts as getFallbackPosts } from './api';
@@ -56,24 +56,13 @@ export async function getAllPosts(): Promise<Post[]> {
 export async function getAllCategories(): Promise<Category[]> {
   try {
     console.log('🔄 Fetching categories from database...');
+    const adminData = await fetchFromAdmin('/categories');
     
-    // Fetch both categories and posts to calculate post counts
-    const [categoriesData, postsData] = await Promise.all([
-      fetchFromAdmin('/categories'),
-      fetchFromAdmin('/posts?status=published')
-    ]);
-    
-    if (categoriesData?.categories && Array.isArray(categoriesData.categories)) {
-      console.log(`✅ Found ${categoriesData.categories.length} database categories`);
-      
-      const posts = postsData?.posts || [];
-      console.log(`📊 Calculating post counts from ${posts.length} posts`);
-      
-      return categoriesData.categories.map(adminCategory => 
-        formatAdminCategory(adminCategory, posts)
-      );
+    if (adminData?.categories && Array.isArray(adminData.categories)) {
+      console.log(`✅ Found ${adminData.categories.length} database categories`);
+      return adminData.categories.map(formatAdminCategory);
     } else {
-      console.log('⚠️ No categories found in database response:', categoriesData);
+      console.log('⚠️ No categories found in database response:', adminData);
     }
   } catch (error) {
     console.warn('❌ Failed to fetch categories from admin API:', error);
@@ -135,20 +124,12 @@ function formatAdminPost(adminPost: any): Post {
   };
 }
 
-function formatAdminCategory(adminCategory: any, posts: any[] = []): Category {
-  // Calculate post count for this category
-  const postCount = posts.filter(post => {
-    if (!post.categories || !Array.isArray(post.categories)) return false;
-    return post.categories.includes(adminCategory.slug);
-  }).length;
-
-  console.log(`📊 Category "${adminCategory.name}" has ${postCount} posts`);
-
+function formatAdminCategory(adminCategory: any): Category {
   return {
     slug: adminCategory.slug || "unknown",
     name: adminCategory.name || 'Unknown',
     description: adminCategory.description || "",
-    postCount: postCount // ✅ Real post count!
+    postCount: adminCategory.postCount || 0
   };
 }
 

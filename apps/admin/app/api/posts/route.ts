@@ -1,62 +1,94 @@
-//apps/admin/app/api/posts/route.ts
+// 1. apps/admin/app/api/posts/route.ts
+// Replace your existing posts API with this database version
 
-import { NextRequest, NextResponse } from 'next/server';
-import { dataStore } from '@/lib/shared-data';
+import { NextRequest, NextResponse } from 'next/server'
+import { PostsDB } from '@/lib/database/posts'
 
-// CORS headers for all responses
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-};
-
-export async function OPTIONS() {
-  return new NextResponse(null, { status: 200, headers: corsHeaders });
+function addCorsHeaders(response: NextResponse) {
+  response.headers.set('Access-Control-Allow-Origin', '*')
+  response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+  response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+  return response
 }
 
-export async function GET() {
+export async function OPTIONS() {
+  return addCorsHeaders(new NextResponse(null, { status: 200 }))
+}
+
+export async function GET(request: NextRequest) {
   try {
-    const posts = dataStore.posts.getAll();
-    return NextResponse.json({ 
-      posts, 
-      success: true, 
-      total: posts.length 
-    }, { headers: corsHeaders });
+    const { searchParams } = new URL(request.url)
+    const status = searchParams.get('status')
+    const category = searchParams.get('category')
+    const limit = searchParams.get('limit')
+
+    let posts
+
+    if (status === 'published') {
+      posts = await PostsDB.getPublished()
+    } else if (status === 'featured') {
+      posts = await PostsDB.getFeatured()
+    } else {
+      posts = await PostsDB.getAll()
+      
+      // Filter by status if specified
+      if (status && status !== 'all') {
+        posts = posts.filter(post => post.status === status)
+      }
+      
+      // Filter by category if specified
+      if (category) {
+        posts = posts.filter(post => post.categories.includes(category))
+      }
+    }
+
+    // Apply limit if specified
+    if (limit) {
+      posts = posts.slice(0, parseInt(limit))
+    }
+
+    const response = NextResponse.json({
+      posts,
+      total: posts.length,
+      success: true
+    })
+    return addCorsHeaders(response)
   } catch (error) {
-    console.error('Failed to fetch posts:', error);
-    return NextResponse.json({ 
-      error: 'Failed to fetch posts',
-      success: false 
-    }, { status: 500, headers: corsHeaders });
+    console.error('Posts API error:', error)
+    const response = NextResponse.json({
+      error: error instanceof Error ? error.message : 'Failed to fetch posts',
+      success: false
+    }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const postData = await request.json();
+    const postData = await request.json()
     
-    const post = dataStore.posts.create({
-      title: postData.title,
-      content: postData.content,
-      excerpt: postData.excerpt || postData.content.substring(0, 200) + '...',
-      slug: postData.slug,
-      status: postData.status || 'draft',
-      featured: postData.featured || false,
-      categories: postData.categories || [],
-      tags: postData.tags || [],
-      author: postData.author || 'Admin',
-      seo: postData.seo || {}
-    });
-    
-    return NextResponse.json({ 
-      post, 
-      success: true 
-    }, { status: 201, headers: corsHeaders });
+    const newPost = await PostsDB.create(postData)
+
+    if (!newPost) {
+      const response = NextResponse.json({
+        error: 'Failed to create post',
+        success: false
+      }, { status: 500 })
+      return addCorsHeaders(response)
+    }
+
+    const response = NextResponse.json({
+      post: newPost,
+      success: true,
+      message: 'Post created successfully'
+    }, { status: 201 })
+    return addCorsHeaders(response)
   } catch (error) {
-    console.error('Failed to create post:', error);
-    return NextResponse.json({ 
-      error: 'Failed to create post',
-      success: false 
-    }, { status: 500, headers: corsHeaders });
+    console.error('Failed to create post:', error)
+    const response = NextResponse.json({
+      error: error instanceof Error ? error.message : 'Failed to create post',
+      success: false
+    }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }

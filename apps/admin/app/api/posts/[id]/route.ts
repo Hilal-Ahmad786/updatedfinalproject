@@ -1,23 +1,51 @@
-// apps/admin/app/api/posts/[id]/route.ts
+// 2. apps/admin/app/api/posts/[id]/route.ts
+// Replace your existing individual post API
+
 import { NextRequest, NextResponse } from 'next/server'
-import { getPostById, updatePost, deletePost } from '@/lib/mock-posts'
-import { getCategoryById } from '@/lib/mock-categories'
+import { PostsDB } from '@/lib/database/posts'
+
+function addCorsHeaders(response: NextResponse) {
+  response.headers.set('Access-Control-Allow-Origin', '*')
+  response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+  response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+  return response
+}
+
+export async function OPTIONS() {
+  return addCorsHeaders(new NextResponse(null, { status: 200 }))
+}
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const post = getPostById(params.id)
-    
+    // Try to get by ID first, then by slug
+    let post = await PostsDB.getById(params.id)
     if (!post) {
-      return NextResponse.json({ error: 'Post not found' }, { status: 404 })
+      post = await PostsDB.getBySlug(params.id)
     }
-    
-    return NextResponse.json({ post })
+
+    if (!post) {
+      const response = NextResponse.json({
+        error: 'Post not found',
+        success: false
+      }, { status: 404 })
+      return addCorsHeaders(response)
+    }
+
+    const response = NextResponse.json({
+      post,
+      success: true
+    })
+    return addCorsHeaders(response)
   } catch (error) {
     console.error('Failed to fetch post:', error)
-    return NextResponse.json({ error: 'Failed to fetch post' }, { status: 500 })
+    const response = NextResponse.json({
+      error: 'Post not found',
+      success: false
+    }, { status: 404 })
+    return addCorsHeaders(response)
   }
 }
 
@@ -26,44 +54,31 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    const postData = await request.json()
+    const updates = await request.json()
     
-    console.log('Updating post:', params.id, postData)
-    
-    // Get category information
-    let categoryName = 'General'
-    if (postData.categoryId) {
-      const category = getCategoryById(postData.categoryId)
-      if (category) {
-        categoryName = category.name
-      }
-    }
-    
-    const updatedPost = updatePost(params.id, {
-      title: postData.title,
-      slug: postData.slug,
-      excerpt: postData.excerpt,
-      content: postData.content,
-      status: postData.status,
-      featured: postData.featured || false,
-      categoryId: postData.categoryId || '',
-      categoryName: categoryName,
-      publishedAt: postData.status === 'published' && !postData.publishedAt ? new Date().toISOString() : postData.publishedAt,
-      seoTitle: postData.seoTitle,
-      seoDescription: postData.seoDescription,
-      tags: postData.tags || []
-    })
-    
+    const updatedPost = await PostsDB.update(params.id, updates)
+
     if (!updatedPost) {
-      return NextResponse.json({ error: 'Post not found' }, { status: 404 })
+      const response = NextResponse.json({
+        error: 'Failed to update post',
+        success: false
+      }, { status: 500 })
+      return addCorsHeaders(response)
     }
-    
-    console.log('Updated post:', updatedPost)
-    
-    return NextResponse.json({ post: updatedPost })
+
+    const response = NextResponse.json({
+      post: updatedPost,
+      success: true,
+      message: 'Post updated successfully'
+    })
+    return addCorsHeaders(response)
   } catch (error) {
     console.error('Failed to update post:', error)
-    return NextResponse.json({ error: 'Failed to update post' }, { status: 500 })
+    const response = NextResponse.json({
+      error: error instanceof Error ? error.message : 'Failed to update post',
+      success: false
+    }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 
@@ -72,15 +87,27 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const success = deletePost(params.id)
-    
+    const success = await PostsDB.delete(params.id)
+
     if (!success) {
-      return NextResponse.json({ error: 'Post not found' }, { status: 404 })
+      const response = NextResponse.json({
+        error: 'Failed to delete post',
+        success: false
+      }, { status: 500 })
+      return addCorsHeaders(response)
     }
-    
-    return NextResponse.json({ message: 'Post deleted successfully' })
+
+    const response = NextResponse.json({
+      success: true,
+      message: 'Post deleted successfully'
+    })
+    return addCorsHeaders(response)
   } catch (error) {
     console.error('Failed to delete post:', error)
-    return NextResponse.json({ error: 'Failed to delete post' }, { status: 500 })
+    const response = NextResponse.json({
+      error: error instanceof Error ? error.message : 'Failed to delete post',
+      success: false
+    }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }

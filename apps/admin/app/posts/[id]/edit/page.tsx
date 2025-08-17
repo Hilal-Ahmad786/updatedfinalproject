@@ -65,6 +65,12 @@ export default function EditPostPage() {
       const response = await fetch(`/api/posts/${postId}`)
       if (response.ok) {
         const data = await response.json()
+        
+        // 🔧 FIX: Convert categories array back to categoryId for UI
+        const postCategories = data.post.categories || []
+        const firstCategorySlug = postCategories[0] || null
+        const matchingCategory = categories.find(cat => cat.slug === firstCategorySlug)
+        
         setPost({
           id: data.post.id,
           title: data.post.title,
@@ -73,9 +79,9 @@ export default function EditPostPage() {
           content: data.post.content,
           status: data.post.status,
           featured: data.post.featured,
-          categoryId: data.post.categoryId,
-          seoTitle: data.post.seoTitle || data.post.title,
-          seoDescription: data.post.seoDescription || data.post.excerpt,
+          categoryId: matchingCategory ? matchingCategory.id : '', // ✅ Convert back to ID for UI
+          seoTitle: data.post.seo?.title || data.post.title,
+          seoDescription: data.post.seo?.description || data.post.excerpt,
           tags: data.post.tags || []
         })
       } else {
@@ -134,26 +140,41 @@ export default function EditPostPage() {
       alert('Please enter a title')
       return
     }
-
+  
     setSaving(true)
     try {
+      // 🔧 FIX: Convert categoryId to categories array with slug
+      const selectedCategory = categories.find(cat => cat.id === post.categoryId)
+      const categorySlug = selectedCategory ? selectedCategory.slug : null
+      
+      const updateData = {
+        title: post.title,
+        content: post.content,
+        excerpt: post.excerpt,
+        status: status || post.status,
+        featured: post.featured,
+        categories: categorySlug ? [categorySlug] : [], // ✅ Send as array of slugs
+        tags: post.tags,
+        seo: {
+          title: post.seoTitle || post.title,
+          description: post.seoDescription || post.excerpt
+        }
+      }
+  
+      console.log('Updating post with data:', updateData) // Debug log
+  
       const response = await fetch(`/api/posts/${postId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          ...post,
-          status: status || post.status,
-          seoTitle: post.seoTitle || post.title,
-          seoDescription: post.seoDescription || post.excerpt
-        }),
+        body: JSON.stringify(updateData),
       })
-
+  
       if (!response.ok) {
         throw new Error('Failed to update post')
       }
-
+  
       // Show success message
       alert(status === 'published' ? 'Post published successfully!' : 'Post updated successfully!')
       
@@ -167,7 +188,6 @@ export default function EditPostPage() {
       setSaving(false)
     }
   }
-
   const handleDelete = async () => {
     if (!confirm('Are you sure you want to delete this post? This action cannot be undone.')) {
       return
