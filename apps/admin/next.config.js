@@ -11,16 +11,13 @@ const nextConfig = {
     ],
   },
   
-  // Add environment variables configuration
+  // Use the new environment variable names
   env: {
-    NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
-    NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-  },
-  
-  // Add public runtime config as backup
-  publicRuntimeConfig: {
-    NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
-    NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    SUPABASE_PROJECT_URL: process.env.SUPABASE_PROJECT_URL,
+    SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY,
+    // Keep the old ones as backup
+    NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_PROJECT_URL,
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY,
   },
   
   webpack: (config, { isServer }) => {
@@ -41,9 +38,15 @@ const nextConfig = {
   
   // Debug environment variables during build
   generateBuildId: async () => {
-    console.log('🔍 Build-time env check:', {
-      url: process.env.NEXT_PUBLIC_SUPABASE_URL ? 'PRESENT' : 'MISSING',
-      key: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? 'PRESENT' : 'MISSING'
+    console.log('🔍 Build-time env check (all methods):', {
+      // Old method
+      oldUrl: process.env.NEXT_PUBLIC_SUPABASE_URL ? 'PRESENT' : 'MISSING',
+      oldKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? 'PRESENT' : 'MISSING',
+      // New method
+      newUrl: process.env.SUPABASE_PROJECT_URL ? 'PRESENT' : 'MISSING',
+      newKey: process.env.SUPABASE_ANON_KEY ? 'PRESENT' : 'MISSING',
+      // All available env vars
+      allSupabaseVars: Object.keys(process.env).filter(k => k.toLowerCase().includes('supabase'))
     })
     return null
   }

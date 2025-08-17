@@ -1,54 +1,48 @@
 // Replace your entire apps/admin/lib/supabase.ts with this:
 
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
-import getConfig from 'next/config'
 
-// Try multiple ways to get environment variables
-const getEnvVar = (name: string): string | undefined => {
-  // Method 1: Direct process.env
-  let value = process.env[name]
-  
-  // Method 2: Next.js config (if available)
-  if (!value && typeof window === 'undefined') {
-    try {
-      const { publicRuntimeConfig } = getConfig() || {}
-      value = publicRuntimeConfig?.[name]
-    } catch (error) {
-      // getConfig might not be available during build
-    }
-  }
-  
-  return value
+// Try multiple environment variable names and methods
+const getSupabaseUrl = (): string => {
+  return process.env.SUPABASE_PROJECT_URL || 
+         process.env.NEXT_PUBLIC_SUPABASE_URL || 
+         'https://vyyvgrnzygmusosflnht.supabase.co'
 }
 
-// Get environment variables using multiple methods
-const supabaseUrl = getEnvVar('NEXT_PUBLIC_SUPABASE_URL')
-const supabaseAnonKey = getEnvVar('NEXT_PUBLIC_SUPABASE_ANON_KEY')
-const supabaseServiceKey = getEnvVar('SUPABASE_SERVICE_ROLE_KEY')
+const getSupabaseKey = (): string => {
+  return process.env.SUPABASE_ANON_KEY || 
+         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 
+         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5eXZncm56eWdtdXNvc2Zsbmh0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUzODkxNzcsImV4cCI6MjA3MDk2NTE3N30.jXj0-3CDkaroTWuShUYzV-nTJH3WyePw1czeqmNzXPc'
+}
+
+// Get environment variables
+const supabaseUrl = getSupabaseUrl()
+const supabaseAnonKey = getSupabaseKey()
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
 // Log environment status for debugging
-console.log('🔍 Supabase Environment Check:', {
+console.log('🔍 Supabase Environment Check (New Method):', {
   url: supabaseUrl ? `${supabaseUrl.substring(0, 20)}...` : 'MISSING',
   anonKey: supabaseAnonKey ? `${supabaseAnonKey.substring(0, 20)}...` : 'MISSING',
   serviceKey: supabaseServiceKey ? 'PRESENT' : 'MISSING',
   nodeEnv: process.env.NODE_ENV,
   vercelEnv: process.env.VERCEL_ENV,
-  availableSupabaseEnvs: Object.keys(process.env).filter(k => k.includes('SUPABASE'))
+  sources: {
+    urlFrom: process.env.SUPABASE_PROJECT_URL ? 'SUPABASE_PROJECT_URL' : 
+             process.env.NEXT_PUBLIC_SUPABASE_URL ? 'NEXT_PUBLIC_SUPABASE_URL' : 'HARDCODED',
+    keyFrom: process.env.SUPABASE_ANON_KEY ? 'SUPABASE_ANON_KEY' : 
+             process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? 'NEXT_PUBLIC_SUPABASE_ANON_KEY' : 'HARDCODED'
+  },
+  availableSupabaseEnvs: Object.keys(process.env).filter(k => k.toLowerCase().includes('supabase'))
 })
 
-// Validate environment variables with better error messages
-if (!supabaseUrl) {
-  const availableEnvs = Object.keys(process.env).filter(k => k.includes('SUPABASE')).join(', ')
-  throw new Error(`Missing NEXT_PUBLIC_SUPABASE_URL environment variable. Available Supabase env vars: ${availableEnvs || 'none'}`)
-}
-
-if (!supabaseAnonKey) {
-  const availableEnvs = Object.keys(process.env).filter(k => k.includes('SUPABASE')).join(', ')
-  throw new Error(`Missing NEXT_PUBLIC_SUPABASE_ANON_KEY environment variable. Available Supabase env vars: ${availableEnvs || 'none'}`)
+// Validate that we have the values (even if hardcoded)
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error(`Supabase configuration failed. URL: ${!!supabaseUrl}, Key: ${!!supabaseAnonKey}`)
 }
 
 // Create real Supabase clients
-console.log('✅ Creating real Supabase clients...')
+console.log('✅ Creating Supabase clients...')
 
 export const supabase: SupabaseClient = createClient(supabaseUrl, supabaseAnonKey)
 

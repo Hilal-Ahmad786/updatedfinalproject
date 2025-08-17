@@ -153,3 +153,7 @@
 2025-08-17T14:11:02.957491Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Other("@100lesme-blog/admin"), path: AnchoredSystemPathBuf("apps/admin") }}))
 2025-08-17T14:12:28.954612Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("apps/admin/lib/supabase.ts")}
 2025-08-17T14:12:28.954643Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Other("@100lesme-blog/admin"), path: AnchoredSystemPathBuf("apps/admin") }}))
+2025-08-17T14:18:10.047022Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("apps/admin/next.config.js")}
+2025-08-17T14:18:10.047072Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Other("@100lesme-blog/admin"), path: AnchoredSystemPathBuf("apps/admin") }}))
+2025-08-17T14:18:45.846816Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("apps/admin/lib/supabase.ts")}
+2025-08-17T14:18:45.846841Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Other("@100lesme-blog/admin"), path: AnchoredSystemPathBuf("apps/admin") }}))
