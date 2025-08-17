@@ -1,32 +1,71 @@
-// ===== COMPLETE SUPABASE INTEGRATION =====
-
-// 1. apps/admin/lib/supabase.ts
-// Supabase client configuration
+// Replace your apps/admin/lib/supabase.ts with this:
 
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables')
+// Check if we're in build time and handle missing env vars gracefully
+const isBuildTime = process.env.NODE_ENV === 'production' && process.env.VERCEL && !process.env.VERCEL_ENV
+
+// Create mock client for build time
+const mockClient = {
+  from: () => ({
+    select: () => ({
+      order: () => Promise.resolve({ data: [], error: null }),
+      eq: () => ({
+        single: () => Promise.resolve({ data: null, error: null })
+      }),
+      single: () => Promise.resolve({ data: null, error: null })
+    }),
+    insert: () => ({
+      select: () => ({
+        single: () => Promise.resolve({ data: null, error: null })
+      })
+    }),
+    update: () => ({
+      eq: () => ({
+        select: () => ({
+          single: () => Promise.resolve({ data: null, error: null })
+        })
+      })
+    }),
+    delete: () => ({
+      eq: () => Promise.resolve({ error: null })
+    })
+  }),
+  auth: {
+    getSession: () => Promise.resolve({ data: { session: null }, error: null })
+  }
 }
 
-// Client for frontend operations (with RLS)
-export const supabase: SupabaseClient = createClient(supabaseUrl, supabaseAnonKey)
-
-// Admin client for backend operations (bypasses RLS) 
-export const supabaseAdmin: SupabaseClient = createClient(
-  supabaseUrl, 
-  supabaseServiceKey || supabaseAnonKey,
-  {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false
-    }
+// Handle missing environment variables
+if (!supabaseUrl || !supabaseAnonKey) {
+  if (isBuildTime) {
+    console.warn('Supabase environment variables not found during build. Using mock clients.')
+  } else {
+    throw new Error('Missing Supabase environment variables')
   }
-)
+}
+
+// Export clients
+export const supabase: SupabaseClient = (!supabaseUrl || !supabaseAnonKey) 
+  ? (mockClient as any)
+  : createClient(supabaseUrl, supabaseAnonKey)
+
+export const supabaseAdmin: SupabaseClient = (!supabaseUrl || !supabaseAnonKey)
+  ? (mockClient as any) 
+  : createClient(
+      supabaseUrl, 
+      supabaseServiceKey || supabaseAnonKey,
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false
+        }
+      }
+    )
 
 // Database types for TypeScript
 export interface Database {
@@ -206,4 +245,3 @@ export interface Database {
     }
   }
 }
-
