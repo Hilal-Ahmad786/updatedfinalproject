@@ -1,88 +1,40 @@
+// Create or update apps/web/next.config.js
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    // Configure pageExtensions to include md and mdx
-    pageExtensions: ['ts', 'tsx', 'js', 'jsx', 'md', 'mdx'],
-    
-    // Enable experimental features
-    experimental: {
-      mdxRs: false, // Use the JS-based MDX compiler for better compatibility
-    },
+  transpilePackages: ['@100lesme-blog/ui', '@100lesme-blog/database'],
+  images: {
+    domains: ['localhost'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+    ],
+  },
   
-    // Image optimization
-    images: {
-      formats: ['image/avif', 'image/webp'],
-      dangerouslyAllowSVG: true,
-      contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
-    },
+  // Add environment variables for the website
+  env: {
+    SUPABASE_PROJECT_URL: process.env.SUPABASE_PROJECT_URL,
+    SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY,
+    NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_PROJECT_URL,
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY,
+    NEXT_PUBLIC_ADMIN_API_URL: process.env.NEXT_PUBLIC_ADMIN_API_URL || 'https://blog-admin-final.vercel.app',
+  },
   
-    // Headers for security and performance
-    async headers() {
-      return [
-        {
-          source: '/(.*)',
-          headers: [
-            {
-              key: 'X-Frame-Options',
-              value: 'DENY',
-            },
-            {
-              key: 'X-Content-Type-Options',
-              value: 'nosniff',
-            },
-            {
-              key: 'Referrer-Policy',
-              value: 'origin-when-cross-origin',
-            },
-            {
-              key: 'Permissions-Policy',
-              value: 'camera=(), microphone=(), geolocation=()',
-            },
-          ],
-        },
-      ]
-    },
+  experimental: {
+    serverComponentsExternalPackages: ['@supabase/supabase-js']
+  },
   
-    // Redirects
-    async redirects() {
-      return [
-        {
-          source: '/posts/:slug*',
-          destination: '/blog/:slug*',
-          permanent: true,
-        },
-      ]
-    },
-  
-    // Enable static exports capability for future deployment options
-    trailingSlash: false,
-    
-    // Bundle analyzer (optional)
-    webpack: (config, { dev, isServer }) => {
-      // Performance optimizations
-      if (!dev && !isServer) {
-        config.optimization.splitChunks = {
-          chunks: 'all',
-          cacheGroups: {
-            vendor: {
-              test: /[\\/]node_modules[\\/]/,
-              name: 'vendors',
-              chunks: 'all',
-            },
-          },
-        }
-      }
-      
-      return config
-    },
+  // Debug environment variables during build
+  generateBuildId: async () => {
+    console.log('🔍 Website Build-time env check:', {
+      adminApiUrl: process.env.NEXT_PUBLIC_ADMIN_API_URL ? 'PRESENT' : 'MISSING',
+      supabaseUrl: process.env.SUPABASE_PROJECT_URL || process.env.NEXT_PUBLIC_SUPABASE_URL ? 'PRESENT' : 'MISSING',
+      supabaseKey: process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? 'PRESENT' : 'MISSING'
+    })
+    return null
   }
-  
-  // Use dynamic import for MDX
-  const withMDX = require('@next/mdx')({
-    extension: /\.mdx?$/,
-    options: {
-      remarkPlugins: [],
-      rehypePlugins: [],
-    },
-  })
-  
-  module.exports = withMDX(nextConfig)
+}
+
+module.exports = nextConfig
