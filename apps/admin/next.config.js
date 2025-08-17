@@ -10,6 +10,19 @@ const nextConfig = {
       },
     ],
   },
+  
+  // Add environment variables configuration
+  env: {
+    NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  },
+  
+  // Add public runtime config as backup
+  publicRuntimeConfig: {
+    NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  },
+  
   webpack: (config, { isServer }) => {
     if (!isServer) {
       config.resolve.fallback = {
@@ -21,7 +34,18 @@ const nextConfig = {
     }
     return config
   },
+  
   experimental: {
+    serverComponentsExternalPackages: ['@supabase/supabase-js']
+  },
+  
+  // Debug environment variables during build
+  generateBuildId: async () => {
+    console.log('🔍 Build-time env check:', {
+      url: process.env.NEXT_PUBLIC_SUPABASE_URL ? 'PRESENT' : 'MISSING',
+      key: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? 'PRESENT' : 'MISSING'
+    })
+    return null
   }
 }
 
