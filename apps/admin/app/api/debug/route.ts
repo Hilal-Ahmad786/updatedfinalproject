@@ -21,7 +21,7 @@ export async function GET() {
     console.log('🔍 Testing Supabase connection...')
     const { data, error } = await supabaseAdmin
       .from('categories')
-      .select('count(*)')
+      .select('*')
       .limit(1)
     
     console.log('🔍 Supabase test result:', { data, error })

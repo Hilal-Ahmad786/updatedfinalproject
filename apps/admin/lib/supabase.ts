@@ -2,75 +2,45 @@
 
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
 
+// Get environment variables
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
-// Create mock client that matches Supabase API
-const createMockClient = () => ({
-  from: (table: string) => ({
-    select: (columns?: string) => ({
-      order: (column: string) => Promise.resolve({ data: [], error: null }),
-      eq: (column: string, value: any) => ({
-        single: () => Promise.resolve({ data: null, error: null })
-      }),
-      single: () => Promise.resolve({ data: null, error: null })
-    }),
-    insert: (data: any) => ({
-      select: (columns?: string) => ({
-        single: () => Promise.resolve({ data: null, error: null })
-      })
-    }),
-    update: (data: any) => ({
-      eq: (column: string, value: any) => ({
-        select: (columns?: string) => ({
-          single: () => Promise.resolve({ data: null, error: null })
-        })
-      })
-    }),
-    delete: () => ({
-      eq: (column: string, value: any) => Promise.resolve({ error: null })
-    })
-  }),
-  auth: {
-    getSession: () => Promise.resolve({ data: { session: null }, error: null })
-  }
+// Log environment status for debugging
+console.log('🔍 Supabase Environment Check:', {
+  url: supabaseUrl ? `${supabaseUrl.substring(0, 20)}...` : 'MISSING',
+  anonKey: supabaseAnonKey ? `${supabaseAnonKey.substring(0, 20)}...` : 'MISSING',
+  serviceKey: supabaseServiceKey ? 'PRESENT' : 'MISSING',
+  nodeEnv: process.env.NODE_ENV
 })
 
-// Function to create real Supabase client safely
-const createSupabaseClient = (url: string, key: string, options?: any): SupabaseClient => {
-  try {
-    return createClient(url, key, options)
-  } catch (error) {
-    console.warn('Failed to create Supabase client, using mock:', error)
-    return createMockClient() as any
+// Validate environment variables
+if (!supabaseUrl) {
+  throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL environment variable')
+}
+
+if (!supabaseAnonKey) {
+  throw new Error('Missing NEXT_PUBLIC_SUPABASE_ANON_KEY environment variable')
+}
+
+// Create real Supabase clients
+console.log('✅ Creating real Supabase clients...')
+
+export const supabase: SupabaseClient = createClient(supabaseUrl, supabaseAnonKey)
+
+export const supabaseAdmin: SupabaseClient = createClient(
+  supabaseUrl, 
+  supabaseServiceKey || supabaseAnonKey,
+  {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
   }
-}
+)
 
-// Export clients with fallbacks
-export const supabase: SupabaseClient = 
-  supabaseUrl && supabaseAnonKey
-    ? createSupabaseClient(supabaseUrl, supabaseAnonKey)
-    : createMockClient() as any
-
-export const supabaseAdmin: SupabaseClient = 
-  supabaseUrl && (supabaseServiceKey || supabaseAnonKey)
-    ? createSupabaseClient(
-        supabaseUrl, 
-        supabaseServiceKey || supabaseAnonKey!,
-        {
-          auth: {
-            autoRefreshToken: false,
-            persistSession: false
-          }
-        }
-      )
-    : createMockClient() as any
-
-// Log warning if using mock clients
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn('Supabase environment variables missing. Using mock clients.')
-}
+console.log('✅ Supabase clients created successfully')
 
 // Database types for TypeScript
 export interface Database {
