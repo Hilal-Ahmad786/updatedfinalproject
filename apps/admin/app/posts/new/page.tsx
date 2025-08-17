@@ -431,21 +431,22 @@ const handleSave = async (status: 'draft' | 'published') => {
           </Card>
          {/* Featured Image Section */}
          <Card className="overflow-hidden">
-  <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
-    <CardTitle className="flex items-center text-gray-800">
-      <ImageIcon className="w-5 h-5 mr-2 text-blue-600" />
-      Featured Image
+  <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b p-4 sm:p-6">
+    <CardTitle className="flex items-center text-gray-800 text-base sm:text-lg">
+      <ImageIcon className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-blue-600 flex-shrink-0" />
+      <span className="truncate">Featured Image</span>
     </CardTitle>
-    <p className="text-sm text-gray-600">
+    <p className="text-xs sm:text-sm text-gray-600 mt-1">
       Choose an eye-catching image to represent your post
     </p>
   </CardHeader>
-  <CardContent className="p-6">
+  
+  <CardContent className="p-4 sm:p-6">
     {selectedFeaturedImage ? (
-      <div className="space-y-4">
+      <div className="space-y-3 sm:space-y-4">
         {/* Selected Image Display */}
         <div className="relative group">
-          <div className="aspect-video relative overflow-hidden rounded-xl border-2 border-gray-200">
+          <div className="aspect-video relative overflow-hidden rounded-lg sm:rounded-xl border-2 border-gray-200">
             <img 
               src={selectedFeaturedImage.url} 
               alt={selectedFeaturedImage.altText || selectedFeaturedImage.originalName}
@@ -455,87 +456,99 @@ const handleSave = async (status: 'draft' | 'published') => {
             <Button
               variant="destructive"
               size="sm"
-              className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
+              className="absolute top-2 right-2 sm:top-3 sm:right-3 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg w-8 h-8 p-0"
               onClick={handleRemoveFeaturedImage}
             >
-              <XIcon className="w-4 h-4" />
+              <XIcon className="w-3 h-3 sm:w-4 sm:h-4" />
             </Button>
           </div>
         </div>
 
         {/* Image Details */}
-        <div className="bg-gray-50 rounded-lg p-4">
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <h4 className="font-medium text-gray-900 mb-1">
-                {selectedFeaturedImage.originalName}
-              </h4>
-              <div className="flex items-center gap-4 text-sm text-gray-600">
-                {selectedFeaturedImage.width && selectedFeaturedImage.height && (
-                  <span className="flex items-center gap-1">
-                    <ImageIcon className="w-3 h-3" />
+        <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
+          <div className="space-y-2">
+            <h4 className="font-medium text-gray-900 text-sm sm:text-base truncate">
+              {selectedFeaturedImage.originalName}
+            </h4>
+            
+            {/* Responsive details layout */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+              {selectedFeaturedImage.width && selectedFeaturedImage.height && (
+                <span className="flex items-center gap-1 text-xs sm:text-sm text-gray-600">
+                  <ImageIcon className="w-3 h-3 flex-shrink-0" />
+                  <span className="whitespace-nowrap">
                     {selectedFeaturedImage.width} × {selectedFeaturedImage.height}px
                   </span>
-                )}
-                <span className="text-green-600 font-medium">
-                  ✓ Ready to publish
                 </span>
-              </div>
-              {selectedFeaturedImage.altText && (
-                <p className="text-xs text-gray-500 mt-2 bg-white rounded px-2 py-1 border">
-                  <strong>Alt text:</strong> {selectedFeaturedImage.altText}
-                </p>
               )}
+              <span className="text-green-600 font-medium text-xs sm:text-sm">
+                ✓ Ready to publish
+              </span>
             </div>
+            
+            {selectedFeaturedImage.altText && (
+              <div className="bg-white rounded px-2 py-1 border mt-2">
+                <p className="text-xs text-gray-500">
+                  <strong className="text-gray-700">Alt text:</strong>
+                  <span className="ml-1 break-words">{selectedFeaturedImage.altText}</span>
+                </p>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Actions */}
-        <div className="flex gap-2">
+        {/* Responsive Actions */}
+        <div className="flex flex-col sm:flex-row gap-2">
           <MediaPicker 
             onSelect={handleFeaturedImageSelect}
             selectedFileId={selectedFeaturedImage.id}
             triggerText="Change Image"
           >
-            <Button variant="outline" size="sm" className="flex-1">
-              <ImageIcon className="w-4 h-4 mr-2" />
-              Change Image
+            <Button variant="outline" size="sm" className="w-full sm:flex-1 justify-center">
+              <ImageIcon className="w-4 h-4 mr-2 flex-shrink-0" />
+              <span className="truncate">Change Image</span>
             </Button>
           </MediaPicker>
           <Button 
             variant="outline" 
             size="sm" 
             onClick={handleRemoveFeaturedImage}
-            className="px-4 text-red-600 hover:text-red-700 hover:bg-red-50"
+            className="sm:w-auto w-full justify-center text-red-600 hover:text-red-700 hover:bg-red-50"
           >
-            <XIcon className="w-4 h-4" />
+            <XIcon className="w-4 h-4 mr-1 sm:mr-0" />
+            <span className="sm:hidden">Remove</span>
           </Button>
         </div>
       </div>
     ) : (
-      <div className="text-center py-8">
-        {/* Empty State */}
-        <div className="bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-dashed border-gray-300 rounded-xl p-8 hover:border-gray-400 transition-colors">
-          <div className="bg-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 shadow-sm">
-            <ImageIcon className="w-8 h-8 text-gray-400" />
+      <div className="text-center py-6 sm:py-8">
+        {/* Responsive Empty State */}
+        <div className="bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-dashed border-gray-300 rounded-lg sm:rounded-xl p-6 sm:p-8 hover:border-gray-400 transition-colors">
+          <div className="bg-white rounded-full w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-sm">
+            <ImageIcon className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400" />
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
+          
+          <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-2 px-2">
             No featured image selected
           </h3>
-          <p className="text-sm text-gray-600 mb-6 max-w-sm mx-auto">
+          
+          <p className="text-sm text-gray-600 mb-4 sm:mb-6 max-w-sm mx-auto px-2">
             A featured image helps attract readers and makes your post stand out in feeds and search results.
           </p>
+          
           <MediaPicker 
             onSelect={handleFeaturedImageSelect}
             triggerText="Select Featured Image"
           >
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm">
-              <ImageIcon className="w-4 h-4 mr-2" />
-              Choose Featured Image
+            <Button className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm w-full sm:w-auto">
+              <ImageIcon className="w-4 h-4 mr-2 flex-shrink-0" />
+              <span className="truncate">Choose Featured Image</span>
             </Button>
           </MediaPicker>
-          <p className="text-xs text-gray-500 mt-3">
-            Recommended: 1200×630px for best social media sharing
+          
+          <p className="text-xs text-gray-500 mt-3 px-2">
+            <span className="block sm:inline">Recommended: 1200×630px</span>
+            <span className="hidden sm:inline"> for best social media sharing</span>
           </p>
         </div>
       </div>

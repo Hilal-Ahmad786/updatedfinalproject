@@ -49,6 +49,7 @@ function ImageUploadModal({ isOpen, onClose, onInsert }: ImageUploadModalProps) 
   const [altText, setAltText] = useState('')
   const [caption, setCaption] = useState('')
   const [uploadMethod, setUploadMethod] = useState<'url' | 'upload'>('url')
+  const [uploading, setUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleSubmit = () => {
@@ -61,14 +62,73 @@ function ImageUploadModal({ isOpen, onClose, onInsert }: ImageUploadModalProps) 
     }
   }
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+ 
+
+
+const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (file) {
-      const url = URL.createObjectURL(file)
-      setImageUrl(url)
-      setAltText(file.name.split('.')[0])
+    if (!file) {
+      console.log('❌ No file selected')
+      return
+    }
+  
+    console.log('📁 File selected:', file.name, 'Size:', file.size)
+  
+    // Check file size (your API allows up to 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      alert('File size must be less than 10MB')
+      return
+    }
+  
+    setUploading(true)
+    try {
+      console.log('🔄 Starting upload to media API...', file.name)
+      
+      // Create FormData for upload
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('folder', 'blog-content')
+      formData.append('altText', file.name.split('.')[0])
+  
+      console.log('📤 Sending request to /api/media/upload')
+  
+      // Upload to your media API
+      const response = await fetch('/api/media/upload', {
+        method: 'POST',
+        body: formData
+      })
+  
+      console.log('📥 Response status:', response.status)
+  
+      if (response.ok) {
+        const data = await response.json()
+        console.log('✅ Upload successful! Full response:', data)
+        
+        // Check if we have the expected data structure
+        if (data.file && data.file.url) {
+          console.log('🔗 Setting image URL to:', data.file.url)
+          setImageUrl(data.file.url)
+          setAltText(data.file.originalName || file.name.split('.')[0])
+          console.log('✅ Image ready for insertion!')
+        } else {
+          console.error('❌ Unexpected response structure:', data)
+          alert('Upload succeeded but response format is unexpected')
+        }
+      } else {
+        const errorData = await response.json()
+        console.error('❌ Upload failed with status:', response.status, errorData)
+        alert(`Upload failed: ${errorData.error || 'Unknown error'}`)
+      }
+    } catch (error) {
+      console.error('❌ Upload error:', error)
+      alert(`Upload failed: ${error.message || 'Unknown error'}`)
+    } finally {
+      setUploading(false)
+      console.log('🏁 Upload process completed')
     }
   }
+  
+
 
   if (!isOpen) return null
 
@@ -120,7 +180,13 @@ function ImageUploadModal({ isOpen, onClose, onInsert }: ImageUploadModalProps) 
                 accept="image/*"
                 onChange={handleFileUpload}
                 className="w-full p-2 border rounded"
+                disabled={uploading}
               />
+              {uploading && (
+                <p className="text-sm text-blue-600 mt-1">
+                  🔄 Uploading image...
+                </p>
+              )}
             </div>
           )}
 
@@ -156,7 +222,10 @@ function ImageUploadModal({ isOpen, onClose, onInsert }: ImageUploadModalProps) 
           )}
 
           <div className="flex gap-2 pt-4">
-            <Button onClick={handleSubmit} disabled={!imageUrl || !altText}>
+            <Button 
+              onClick={handleSubmit} 
+              disabled={!imageUrl || !altText || uploading}
+            >
               <Check className="h-4 w-4 mr-1" />
               Insert Image
             </Button>
