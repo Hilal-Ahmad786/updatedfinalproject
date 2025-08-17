@@ -471,20 +471,20 @@ const handleSave = async (status: 'draft' | 'published') => {
               {selectedFeaturedImage.originalName}
             </h4>
             
-            {/* Responsive details layout */}
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-              {selectedFeaturedImage.width && selectedFeaturedImage.height && (
-                <span className="flex items-center gap-1 text-xs sm:text-sm text-gray-600">
-                  <ImageIcon className="w-3 h-3 flex-shrink-0" />
-                  <span className="whitespace-nowrap">
-                    {selectedFeaturedImage.width} × {selectedFeaturedImage.height}px
-                  </span>
-                </span>
-              )}
-              <span className="text-green-600 font-medium text-xs sm:text-sm">
-                ✓ Ready to publish
-              </span>
-            </div>
+{/* Responsive details layout */}
+<div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+  {selectedFeaturedImage?.url && (
+    <span className="flex items-center gap-1 text-xs sm:text-sm text-gray-600">
+      <ImageIcon className="w-3 h-3 flex-shrink-0" />
+      <span className="whitespace-nowrap">
+        Image Selected
+      </span>
+    </span>
+  )}
+  <span className="text-green-600 font-medium text-xs sm:text-sm">
+    ✓ Ready to publish
+  </span>
+</div>
             
             {selectedFeaturedImage.altText && (
               <div className="bg-white rounded px-2 py-1 border mt-2">

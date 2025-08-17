@@ -69,9 +69,17 @@ export async function getAllCategories(): Promise<Category[]> {
       const posts = postsData?.posts || [];
       console.log(`📊 Calculating post counts from ${posts.length} posts`);
       
-      return categoriesData.categories.map(adminCategory => 
-        formatAdminCategory(adminCategory, posts)
-      );
+interface AdminCategory {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  createdAt: string;
+}
+
+return categoriesData.categories.map((adminCategory: AdminCategory) =>
+  formatAdminCategory(adminCategory, posts)
+);
     } else {
       console.log('⚠️ No categories found in database response:', categoriesData);
     }
@@ -108,7 +116,15 @@ export async function getPostsByCategory(categorySlug: string): Promise<Post[]> 
   });
 }
 
+
 function formatAdminPost(adminPost: any): Post {
+  // Handle featured image properly
+  let coverImage = '/images/blog/default.jpg'; // Default fallback
+  
+  if (adminPost.featuredImage && adminPost.featuredImage.url) {
+    coverImage = adminPost.featuredImage.url;
+  }
+  
   return {
     slug: adminPost.slug || 'untitled',
     title: adminPost.title || 'Untitled',
@@ -125,12 +141,13 @@ function formatAdminPost(adminPost: any): Post {
     },
     category: Array.isArray(adminPost.categories) ? adminPost.categories[0] || 'general' : 'general',
     tags: Array.isArray(adminPost.tags) ? adminPost.tags : [],
-    coverImage: adminPost.image || '/images/blog/default.jpg',
+    coverImage: coverImage, // ✅ Now uses the correct featured image
     readingTime: calculateReadTime(adminPost.content || ''),
     excerpt: adminPost.excerpt || adminPost.content?.substring(0, 200) + '...' || '',
     seo: adminPost.seo || {
-      title: adminPost.title,
-      description: adminPost.excerpt || adminPost.content?.substring(0, 160) + '...'
+      title: adminPost.title || 'Untitled',
+      description: adminPost.excerpt || adminPost.content?.substring(0, 160) + '...' || '',
+      keywords: []
     }
   };
 }
