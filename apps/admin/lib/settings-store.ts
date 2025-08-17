@@ -1,5 +1,5 @@
-// 1. apps/admin/lib/settings-store.ts
-// Settings data store following your localStorage pattern
+// apps/admin/lib/settings-store.ts
+// Fixed TypeScript errors for deployment
 
 export interface SettingsData {
     general: {
@@ -39,9 +39,6 @@ export interface SettingsData {
   // Storage key
   const SETTINGS_KEY = 'blog_settings'
   
-  // In-memory storage
-  let settings: SettingsData | null = null
-  
   // Default settings
   const defaultSettings: SettingsData = {
     general: {
@@ -78,23 +75,34 @@ export interface SettingsData {
     }
   }
   
+  // In-memory storage - never null, always initialized
+  let settings: SettingsData = { ...defaultSettings }
+  
   // Load from localStorage
   function loadSettings(): SettingsData {
     if (typeof window === 'undefined') {
-      return defaultSettings
+      return { ...defaultSettings }
     }
   
     try {
       const savedSettings = localStorage.getItem(SETTINGS_KEY)
       if (savedSettings) {
-        settings = { ...defaultSettings, ...JSON.parse(savedSettings) }
+        const parsed = JSON.parse(savedSettings)
+        // Merge with defaults to ensure all properties exist
+        settings = {
+          general: { ...defaultSettings.general, ...parsed.general },
+          appearance: { ...defaultSettings.appearance, ...parsed.appearance },
+          security: { ...defaultSettings.security, ...parsed.security },
+          notifications: { ...defaultSettings.notifications, ...parsed.notifications },
+          backup: { ...defaultSettings.backup, ...parsed.backup }
+        }
       } else {
-        settings = defaultSettings
+        settings = { ...defaultSettings }
         saveSettings()
       }
     } catch (error) {
       console.error('Error loading settings:', error)
-      settings = defaultSettings
+      settings = { ...defaultSettings }
       saveSettings()
     }
   
@@ -103,7 +111,7 @@ export interface SettingsData {
   
   // Save to localStorage
   function saveSettings(): void {
-    if (typeof window === 'undefined' || !settings) return
+    if (typeof window === 'undefined') return
   
     try {
       localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings))
@@ -116,14 +124,15 @@ export interface SettingsData {
   if (typeof window !== 'undefined') {
     loadSettings()
   } else {
-    settings = defaultSettings
+    settings = { ...defaultSettings }
   }
   
   // Settings store API
   export const settingsStore = {
-    // Get all settings
+    // Get all settings - always returns valid SettingsData
     getAll: (): SettingsData => {
-      if (!settings) {
+      // Ensure settings is never null
+      if (!settings || typeof settings !== 'object') {
         settings = loadSettings()
       }
       return settings
@@ -137,7 +146,7 @@ export interface SettingsData {
   
     // Update entire settings
     updateAll: (newSettings: SettingsData): SettingsData => {
-      settings = newSettings
+      settings = { ...newSettings }
       saveSettings()
       return settings
     },
@@ -147,14 +156,13 @@ export interface SettingsData {
       section: T, 
       updates: Partial<SettingsData[T]>
     ): SettingsData => {
-      if (!settings) {
-        settings = loadSettings()
-      }
+      // Ensure settings is initialized
+      const currentSettings = settingsStore.getAll()
   
       settings = {
-        ...settings,
+        ...currentSettings,
         [section]: {
-          ...settings[section],
+          ...currentSettings[section],
           ...updates
         }
       }
@@ -169,14 +177,13 @@ export interface SettingsData {
       key: keyof SettingsData[T],
       value: any
     ): SettingsData => {
-      if (!settings) {
-        settings = loadSettings()
-      }
+      // Ensure settings is initialized
+      const currentSettings = settingsStore.getAll()
   
       settings = {
-        ...settings,
+        ...currentSettings,
         [section]: {
-          ...settings[section],
+          ...currentSettings[section],
           [key]: value
         }
       }
@@ -194,12 +201,10 @@ export interface SettingsData {
   
     // Reset specific section
     resetSection: <T extends keyof SettingsData>(section: T): SettingsData => {
-      if (!settings) {
-        settings = loadSettings()
-      }
+      const currentSettings = settingsStore.getAll()
   
       settings = {
-        ...settings,
+        ...currentSettings,
         [section]: { ...defaultSettings[section] }
       }
   
@@ -207,4 +212,3 @@ export interface SettingsData {
       return settings
     }
   }
-  
