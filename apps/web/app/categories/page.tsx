@@ -12,10 +12,10 @@ export default async function CategoriesPage() {
       <div className="mx-auto max-w-4xl">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold tracking-tight sm:text-5xl mb-4">
-            Categories
+          Kategoriler
           </h1>
           <p className="text-lg text-muted-foreground">
-            Explore posts by category
+          Kategorilere göre yazıları keşfedin
           </p>
         </div>
 
