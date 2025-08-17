@@ -11,6 +11,8 @@ const nextConfig = {
         hostname: '**',
       },
     ],
+    // Disable image optimization to fix loading issues
+    unoptimized: true
   },
   
   // Add environment variables for the website
