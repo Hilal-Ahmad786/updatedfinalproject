@@ -79,7 +79,7 @@ out
 # Gatsby files
 .cache/
 public
-
+!apps/web/public/images/
 # Vuepress build output
 .vuepress/dist
 
