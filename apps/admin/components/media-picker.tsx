@@ -195,12 +195,14 @@ export default function MediaPicker({
       </DialogTrigger>
       
       <DialogContent className="max-w-6xl max-h-[90vh] overflow-hidden">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <FileImageIcon className="w-5 h-5" />
-            Select Featured Image
-          </DialogTitle>
-        </DialogHeader>
+      <DialogHeader>
+  <DialogTitle>
+    <div className="flex items-center gap-2">
+      <FileImageIcon className="w-5 h-5" />
+      Select Featured Image
+    </div>
+  </DialogTitle>
+</DialogHeader>
         
         <div className="space-y-6">
           {/* Search and Upload */}

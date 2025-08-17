@@ -120,12 +120,12 @@ const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         alert(`Upload failed: ${errorData.error || 'Unknown error'}`)
       }
     } catch (error) {
-      console.error('❌ Upload error:', error)
-      alert(`Upload failed: ${error.message || 'Unknown error'}`)
-    } finally {
-      setUploading(false)
-      console.log('🏁 Upload process completed')
-    }
+        console.error('❌ Upload error:', error)
+        alert(`Upload failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      } finally {
+        setUploading(false)
+        console.log('🏁 Upload process completed')
+      }
   }
   
 
