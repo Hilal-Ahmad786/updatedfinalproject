@@ -55,8 +55,29 @@ export default function EditPostPage() {
   // Fetch post data and categories on component mount
   useEffect(() => {
     if (postId) {
-      fetchPost()
-      fetchCategories()
+      // First load categories, then load post
+      const loadData = async () => {
+        try {
+          // Load categories first
+          const categoriesResponse = await fetch('/api/categories')
+          if (categoriesResponse.ok) {
+            const categoriesData = await categoriesResponse.json()
+            const fetchedCategories = categoriesData.categories || []
+            setCategories(fetchedCategories)
+            
+            // Now load the post with categories available
+            await fetchPostWithCategories(fetchedCategories)
+          } else {
+            // If categories fail, still try to load post
+            await fetchPost()
+          }
+        } catch (error) {
+          console.error('Error loading data:', error)
+          setLoading(false)
+        }
+      }
+      
+      loadData()
     }
   }, [postId])
 
@@ -66,23 +87,32 @@ export default function EditPostPage() {
       if (response.ok) {
         const data = await response.json()
         
-        // 🔧 FIX: Convert categories array back to categoryId for UI
-        const postCategories = data.post.categories || []
-        const firstCategorySlug = postCategories[0] || null
-        const matchingCategory = categories.find(cat => cat.slug === firstCategorySlug)
+        console.log('✅ Post data received:', data.post) // Debug log
+        
+        // ✅ Safe handling of all arrays and objects
+        const postCategories = Array.isArray(data.post.categories) ? data.post.categories : []
+        const postTags = Array.isArray(data.post.tags) ? data.post.tags : []
+        const postSeo = data.post.seo || {}
+        
+        // ✅ Wait for categories to be loaded before processing
+        let matchingCategory = null
+        if (postCategories.length > 0 && categories.length > 0) {
+          const firstCategorySlug = postCategories[0]
+          matchingCategory = categories.find(cat => cat && cat.slug === firstCategorySlug)
+        }
         
         setPost({
           id: data.post.id,
-          title: data.post.title,
-          slug: data.post.slug,
-          excerpt: data.post.excerpt,
-          content: data.post.content,
-          status: data.post.status,
-          featured: data.post.featured,
-          categoryId: matchingCategory ? matchingCategory.id : '', // ✅ Convert back to ID for UI
-          seoTitle: data.post.seo?.title || data.post.title,
-          seoDescription: data.post.seo?.description || data.post.excerpt,
-          tags: data.post.tags || []
+          title: data.post.title || '',
+          slug: data.post.slug || '',
+          excerpt: data.post.excerpt || '',
+          content: data.post.content || '',
+          status: data.post.status || 'draft',
+          featured: data.post.featured || false,
+          categoryId: matchingCategory ? matchingCategory.id : '',
+          seoTitle: postSeo.title || data.post.title || '',
+          seoDescription: postSeo.description || data.post.excerpt || '',
+          tags: postTags
         })
       } else {
         throw new Error('Post not found')
@@ -95,6 +125,35 @@ export default function EditPostPage() {
       setLoading(false)
     }
   }
+  
+  // ✅ Also update your useEffect to ensure proper loading order:
+  useEffect(() => {
+    if (postId) {
+      // First load categories, then load post
+      const loadData = async () => {
+        try {
+          // Load categories first
+          const categoriesResponse = await fetch('/api/categories')
+          if (categoriesResponse.ok) {
+            const categoriesData = await categoriesResponse.json()
+            const fetchedCategories = categoriesData.categories || []
+            setCategories(fetchedCategories)
+            
+            // Now load the post with categories available
+            await fetchPostWithCategories(fetchedCategories)
+          } else {
+            // If categories fail, still try to load post
+            await fetchPost()
+          }
+        } catch (error) {
+          console.error('Error loading data:', error)
+          setLoading(false)
+        }
+      }
+      
+      loadData()
+    }
+  }, [postId])
 
   const fetchCategories = async () => {
     try {
@@ -209,7 +268,50 @@ export default function EditPostPage() {
       alert('Failed to delete post. Please try again.')
     }
   }
-
+  const fetchPostWithCategories = async (availableCategories: Category[]) => {
+    try {
+      const response = await fetch(`/api/posts/${postId}`)
+      if (response.ok) {
+        const data = await response.json()
+        
+        console.log('✅ Post data received:', data.post) // Debug log
+        
+        // ✅ Safe handling of all arrays and objects
+        const postCategories = Array.isArray(data.post.categories) ? data.post.categories : []
+        const postTags = Array.isArray(data.post.tags) ? data.post.tags : []
+        const postSeo = data.post.seo || {}
+        
+        // ✅ Use the passed categories instead of state
+        let matchingCategory = null
+        if (postCategories.length > 0 && availableCategories.length > 0) {
+          const firstCategorySlug = postCategories[0]
+          matchingCategory = availableCategories.find(cat => cat && cat.slug === firstCategorySlug)
+        }
+        
+        setPost({
+          id: data.post.id,
+          title: data.post.title || '',
+          slug: data.post.slug || '',
+          excerpt: data.post.excerpt || '',
+          content: data.post.content || '',
+          status: data.post.status || 'draft',
+          featured: data.post.featured || false,
+          categoryId: matchingCategory ? matchingCategory.id : '',
+          seoTitle: postSeo.title || data.post.title || '',
+          seoDescription: postSeo.description || data.post.excerpt || '',
+          tags: postTags
+        })
+      } else {
+        throw new Error('Post not found')
+      }
+    } catch (error) {
+      console.error('Error fetching post:', error)
+      alert('Failed to load post')
+      router.push('/posts')
+    } finally {
+      setLoading(false)
+    }
+  }
   if (loading) {
     return (
       <div className="p-6 max-w-4xl mx-auto">

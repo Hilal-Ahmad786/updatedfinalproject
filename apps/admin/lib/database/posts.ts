@@ -1,5 +1,4 @@
 // apps/admin/lib/database/posts.ts
-// Complete updated version with featured image support
 
 import { supabaseAdmin } from '@/lib/supabase'
 

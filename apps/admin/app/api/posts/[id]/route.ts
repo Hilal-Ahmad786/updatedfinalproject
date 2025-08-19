@@ -1,5 +1,4 @@
 // 2. apps/admin/app/api/posts/[id]/route.ts
-// Replace your existing individual post API
 
 import { NextRequest, NextResponse } from 'next/server'
 import { PostsDB } from '@/lib/database/posts'
