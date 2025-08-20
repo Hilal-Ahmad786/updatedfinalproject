@@ -1,3 +1,4 @@
+//apps/web/app/blog/page.tsx
 import { getAllPosts } from '@/lib/hybrid-api'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'

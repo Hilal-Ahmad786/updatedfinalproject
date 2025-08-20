@@ -80,7 +80,7 @@ export function Footer() {
         <div className="mt-12 pt-8 border-t">
           <div className="flex flex-col sm:flex-row justify-between items-center">
             <p className="text-sm text-muted-foreground">
-              © 2024 {SITE_CONFIG.name}. Tüm hakları saklıdır.
+              © 2025 {SITE_CONFIG.name}. Tüm hakları saklıdır.
             </p>
             <div className="flex space-x-4 mt-4 sm:mt-0">
               <Link
@@ -90,14 +90,7 @@ export function Footer() {
               >
                 <Mail className="h-4 w-4" />
               </Link>
-              <Link
-                href={SOCIAL_LINKS.linkedin}
-                className="text-muted-foreground hover:text-foreground transition-colors"
-                aria-label="LinkedIn"
-                target="_blank"
-              >
-                <Linkedin className="h-4 w-4" />
-              </Link>
+
               <Link
                 href={SOCIAL_LINKS.instagram}
                 className="text-muted-foreground hover:text-foreground transition-colors"

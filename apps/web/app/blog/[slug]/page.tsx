@@ -1,3 +1,4 @@
+//apps/web/app/blog/[slug]/page.tsx
 import { getPostBySlug, getAllPosts } from '@/lib/hybrid-api'
 import { formatDate } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
