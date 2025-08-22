@@ -1,58 +1,73 @@
-// Create this file: apps/admin/app/api/debug/route.ts
 
-import { NextResponse } from 'next/server'
+
+// apps/admin/app/api/debug/route.ts
+// Create this file to test database connection
+
+import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 
 export async function GET() {
   try {
-    console.log('🔍 Starting debug check...')
+    console.log('🔍 Debug API - Testing database connection...')
     
-    // Check environment variables
-    const envCheck = {
-      NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL ? 'SET' : 'MISSING',
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? 'SET' : 'MISSING',
-      NODE_ENV: process.env.NODE_ENV,
-      VERCEL_ENV: process.env.VERCEL_ENV
-    }
+    // Test 1: Check Supabase client
+    console.log('✅ Supabase client exists:', !!supabaseAdmin)
     
-    console.log('🔍 Environment variables:', envCheck)
+    // Test 2: Simple query
+    const { data: users, error: usersError } = await supabaseAdmin
+      .from('users')
+      .select('*')
+      .limit(1)
     
-    // Test Supabase connection
-    console.log('🔍 Testing Supabase connection...')
-    const { data, error } = await supabaseAdmin
+    console.log('👥 Users query:', { users, usersError })
+    
+    // Test 3: Categories query
+    const { data: categories, error: categoriesError } = await supabaseAdmin
       .from('categories')
       .select('*')
       .limit(1)
     
-    console.log('🔍 Supabase test result:', { data, error })
+    console.log('📂 Categories query:', { categories, categoriesError })
     
-    if (error) {
-      console.error('❌ Supabase connection error:', error)
-      return NextResponse.json({
-        status: 'error',
-        message: 'Supabase connection failed',
-        envCheck,
-        supabaseError: error.message,
-        details: error
-      }, { status: 500 })
-    }
+    // Test 4: Posts table structure
+    const { data: posts, error: postsError } = await supabaseAdmin
+      .from('posts')
+      .select('*')
+      .limit(1)
     
-    console.log('✅ Debug check successful!')
+    console.log('📝 Posts query:', { posts, postsError })
     
     return NextResponse.json({
-      status: 'success',
-      message: 'Everything is working!',
-      envCheck,
-      supabaseConnection: 'OK',
-      timestamp: new Date().toISOString()
+      success: true,
+      tests: {
+        supabaseClient: !!supabaseAdmin,
+        usersTable: { 
+          success: !usersError, 
+          error: usersError?.message,
+          count: users?.length || 0 
+        },
+        categoriesTable: { 
+          success: !categoriesError, 
+          error: categoriesError?.message,
+          count: categories?.length || 0 
+        },
+        postsTable: { 
+          success: !postsError, 
+          error: postsError?.message,
+          count: posts?.length || 0 
+        }
+      },
+      environment: {
+        nodeEnv: process.env.NODE_ENV,
+        vercelEnv: process.env.VERCEL_ENV,
+        hasSupabaseUrl: !!process.env.SUPABASE_PROJECT_URL || !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+        hasSupabaseKey: !!process.env.SUPABASE_ANON_KEY || !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+      }
     })
-    
   } catch (error) {
-    console.error('❌ Debug check failed:', error)
-    
+    console.error('❌ Debug API Error:', error)
     return NextResponse.json({
-      status: 'error',
-      message: 'Debug check failed',
+      success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
       stack: error instanceof Error ? error.stack : undefined
     }, { status: 500 })
