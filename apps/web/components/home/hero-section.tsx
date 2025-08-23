@@ -64,7 +64,7 @@ export function HeroSection() {
             </span>
             <br />
             <span className="text-muted-foreground">
-              100leşme Yoluculuğu
+              100leşme Yolculuğu
             </span>
           </motion.h1>
 
