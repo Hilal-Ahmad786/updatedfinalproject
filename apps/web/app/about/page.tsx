@@ -31,74 +31,62 @@ export default function AboutPage() {
             <CardContent className="p-0">
               <h2 className="text-2xl font-bold mb-4 flex items-center">
                 <Heart className="mr-2 h-6 w-6 text-primary" />
-                Benim Hikayem
+                Ben Kimim?
               </h2>
               <div className="space-y-4 text-muted-foreground">
                 <p>
-                  100leşme yolculuğunun yazarı, yürüyeni ve en çok da tanığıyım.
-                  Bugüne kadar okudum, çalıştım, çabaladım, uyum sağladım.
-                  Bazen birileri tarafından yönetildim, bazen de ben yönettim.
-                </p>
-                <p>
-                  "Hayatı iyi yaşamak" için gerekli denilen her şeyi, sırayla yaptım.
-                  Ama bir gün... Tüm bu "başarı" listelerine rağmen aynaya baktığımda, 
-                  gözlerimde bir boşluk gördüm.
-                </p>
                 <blockquote className="border-l-4 border-primary pl-4 italic text-lg">
-                  "Bu hayat gerçekten benim mi?"
+                Mühendis | Genel Müdür (Global Şirket) | Anne | Dost | Öğrenci | Yazar | Yürüyen bir soru.
                 </blockquote>
+                  
+                  Profesyonel hayatın içinde, global bir şirkette genel müdür olarak kararlar veren, "globale ast, lokale üst" modunda yaşayan, ekipler yöneten bir liderim.
+                  Aynı zamanda iç sesiyle boğuşan, kırılganlıkla gücü bir arada taşıyan bir kadınım.
+                  Planlama ve netlik takıntısı olan, ama hâlâ "öz-sevgi" konusunda çırak kalan biri.
+                  "Hallice yaş"ta ama hâlâ öğrenen, hâlâ değişenim.
+                  Kısaca ben: Hayatın direksiyonuna geçmeye karar veren biriyim.
+
+                </p>
+                <h2 className="text-2xl font-bold mb-4 flex items-center">
+                <Heart className="mr-2 h-6 w-6 text-primary" />
+                Peki Derdim Ne?
+              </h2>
                 <p>
-                  O gün durdum. Sadece bir günü, bir kararı ya da bir ilişkiyi değil…
-                  Koca bir hayatı sorguladım. Kim için yaşıyordum? Ne için karar alıyordum?
-                  Ve en önemlisi: Ben kimdim?
+                "Ben değil, atalar kusurlu" diyerek sıyrılamayacağım bir hayatın tam ortasındayım. Bu yüzden 100leşmeye karar verdim. Yıllar sonra “Hadi ya, bunu niye daha önce bilmiyordum?” dememek için... Şimdi, “Ne yapabilirim?” sorusunun peşindeyim.
                 </p>
+                <h2 className="text-2xl font-bold mb-4 flex items-center">
+                <Heart className="mr-2 h-6 w-6 text-primary" />
+                Sonuç?
+              </h2>
+              <p>
+              Her yazıda biraz kırılganlık, biraz direnç; biraz umut, biraz da gerçek var. Çünkü hayat da böyle: net değil ama çok gerçek.
+Eğer sen de kendinle 100leşmeye cesaret ediyorsan, hoş geldin.
+                </p>
+
+
+                <h2 className="text-2xl font-bold mb-4 flex items-center">
+                <Heart className="mr-2 h-6 w-6 text-primary" />
+                100leşmenin Doğuşu               </h2>
+              <p>
+              Bugüne kadar okudum, çalıştım, çabaladım, uyum sağladım. Bazen birileri tarafından yönetildim, bazen de ben yönettim. "Hayatı iyi yaşamak" için gerekli denilen her şeyi sırasıyla yaptım. Ama bir gün... Tüm bu "başarı için yapılacaklar" listelerine rağmen aynaya baktığımda, gözlerimde bir boşluk gördüm. İçimden bir ses sordu:
+                </p>
+
+                <blockquote className="border-l-4 border-primary pl-4 italic text-lg">
+                “Bu hayat gerçekten benim mi?”                </blockquote>
+              <p>
+              O gün durdum. Sadece bir günü, bir kararı ya da bir ilişkiyi değil; koca bir hayatı sorguladım. Kim için yaşıyordum? Ne için karar alıyordum? Ve en önemlisi: Ben kimdim?
+                </p>
+
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Profesyonel Kimlik */}
-        <div className="grid md:grid-cols-2 gap-8 mb-16">
-          <Card className="glass">
-            <CardContent className="p-6">
-              <h3 className="text-xl font-bold mb-4 flex items-center">
-                <Target className="mr-2 h-5 w-5 text-primary" />
-                Profesyonel Hayatım
-              </h3>
-              <div className="space-y-3">
-                <Badge variant="outline" className="mr-2 mb-2">Mühendis</Badge>
-                <Badge variant="outline" className="mr-2 mb-2">Genel Müdür</Badge>
-                <Badge variant="outline" className="mr-2 mb-2">Lider</Badge>
-                <Badge variant="outline" className="mr-2 mb-2">Anne</Badge>
-                <p className="text-sm text-muted-foreground mt-4">
-                  25+ yılı aşkın profesyonel tecrübemle, Saica Pack Türkiye'de Genel Müdür 
-                  olarak görev yapıyorum. Ekipleri güçlendiren, insana değer veren ve 
-                  sürdürülebilir başarıyı hedefleyen bir liderlik anlayışı benimsiyorum.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="glass">
-            <CardContent className="p-6">
-              <h3 className="text-xl font-bold mb-4 flex items-center">
-                <Users className="mr-2 h-5 w-5 text-primary" />
-                Liderlik Felsefem
-              </h3>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li>• Anlamlı başarının ancak birlikte üretmekle mümkün olduğuna inanırım</li>
-                <li>• Farklı sesleri duyurmak ve güven kültürü inşa etmek önceliğimdir</li>
-                <li>• İşin merkezine daima insanı koyarım</li>
-                <li>• Değer temelli bir liderlik modeli uygularım</li>
-              </ul>
-            </CardContent>
-          </Card>
-        </div>
+        
 
         {/* 100leşme Nedir */}
         <Card className="glass mb-16">
           <CardContent className="p-8">
-            <h2 className="text-2xl font-bold mb-4 text-center">100leşme Nedir?</h2>
+            <h2 className="text-2xl font-bold mb-4 text-center">Peki  nedir bu 100leşme?</h2>
             <p className="text-muted-foreground text-center mb-6">
               100leşme, sorularla başlayan bir içsel kalkışmadır. 
               Dışarıdan sessiz ama içten bir devrim gibidir.
@@ -122,7 +110,12 @@ export default function AboutPage() {
                   <li>✅ Kendi yüzleşmemi yazma alanım</li>
                 </ul>
               </div>
+  
+
             </div>
+            <p className='mt-6'>
+                Benim niyetim, akıl vermek değil. Çünkü çok iyi biliyorum ki: “Tüm akılları pazara çıkarmışlar, herkes yine gidip kendi aklını almış.” Bu yüzden bu yolculukta tek iddiam, kendi yüzleşmemi yazmak. Ve belki de, seni de bu eşlik hâline davet etmek.               
+                 </p>
           </CardContent>
         </Card>
 
@@ -139,12 +132,7 @@ export default function AboutPage() {
                 E-posta Gönder
               </Link>
             </Button>
-            <Button asChild variant="outline" size="lg">
-              <Link href="https://linkedin.com/in/seda-tokmak" target="_blank">
-                <Linkedin className="mr-2 h-4 w-4" />
-                LinkedIn
-              </Link>
-            </Button>
+
           </div>
         </div>
       </div>

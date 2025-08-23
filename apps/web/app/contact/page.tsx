@@ -161,20 +161,10 @@ export default function ContactPage() {
                     </div>
                   </Link>
                   
-                  <Link 
-                    href="https://linkedin.com/in/seda-tokmak"
-                    target="_blank"
-                    className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors"
-                  >
-                    <Linkedin className="h-5 w-5 text-primary" />
-                    <div>
-                      <p className="font-medium">LinkedIn</p>
-                      <p className="text-sm text-muted-foreground">Profesyonel ağımda bağlantı kuralım</p>
-                    </div>
-                  </Link>
+
 
                   <Link 
-                    href="https://instagram.com/100lesme"
+                    href="https://instagram.com/100lesmeofficia"
                     target="_blank"
                     className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors"
                   >
