@@ -1,5 +1,5 @@
 // apps/admin/app/api/posts/route.ts
-// Enhanced version to handle long content properly
+// Enhanced version to handle long content proper ly
 
 import { NextRequest, NextResponse } from 'next/server'
 import { PostsDB } from '@/lib/database/posts'
