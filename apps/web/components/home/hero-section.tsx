@@ -26,29 +26,34 @@ const staggerContainer = {
 
 export function HeroSection() {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-background via-background to-muted/30 min-h-[90vh] flex items-center">
-      {/* Background Elements */}
+    <section className="relative overflow-hidden min-h-[90vh] flex items-center">
+      {/* Background Image */}
       <div className="absolute inset-0">
-        <div className="absolute top-1/4 left-1/4 h-64 w-64 rounded-full bg-primary/5 blur-3xl animate-pulse-slow" />
-        <div className="absolute bottom-1/4 right-1/4 h-96 w-96 rounded-full bg-accent/5 blur-3xl animate-pulse-slow" style={{ animationDelay: '1s' }} />
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{
+            backgroundImage: "url('/images/Picture1.png')"
+          }}
+        />
+        {/* Dark overlay for better text readability */}
+        <div className="absolute inset-0 bg-black/40" />
+        {/* Optional: Gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-background/80 via-background/60 to-muted/40" />
       </div>
 
-      <div className="container relative">
+      {/* Animated Background Elements (kept for extra visual interest) */}
+      <div className="absolute inset-0">
+        <div className="absolute top-1/4 left-1/4 h-64 w-64 rounded-full bg-primary/10 blur-3xl animate-pulse-slow" />
+        <div className="absolute bottom-1/4 right-1/4 h-96 w-96 rounded-full bg-accent/10 blur-3xl animate-pulse-slow" style={{ animationDelay: '1s' }} />
+      </div>
+
+      <div className="container relative z-10">
         <motion.div
           className="flex flex-col items-center text-center py-24 lg:py-32"
           variants={staggerContainer}
           initial="initial"
           animate="animate"
         >
-          {/* Badge */}
-          <motion.div
-            variants={fadeInUp}
-            className="inline-flex items-center rounded-full border border-primary/20 bg-primary/5 px-4 py-2 text-sm font-medium text-primary mb-8"
-          >
-            <Heart className="mr-2 h-4 w-4 fill-current" />
-            100leşme Yolculuğu
-          </motion.div>
-
           {/* Main Heading */}
           <motion.h1
             variants={fadeInUp}
@@ -59,7 +64,7 @@ export function HeroSection() {
             </span>
             <br />
             <span className="text-muted-foreground">
-              100leşme Hikayem
+              100leşme Yoluculuğu
             </span>
           </motion.h1>
 
@@ -94,29 +99,35 @@ export function HeroSection() {
               asChild
               size="lg"
               variant="outline"
-              className="btn-hover-lift glass"
+              className="btn-hover-lift glass backdrop-blur-md"
             >
               <Link href="/about">
                 Hakkımda
               </Link>
             </Button>
+            
           </motion.div>
-
-          {/* Personal Quote */}
-          <motion.div
-            variants={fadeInUp}
-            className="mt-16 p-6 glass rounded-2xl max-w-2xl"
-          >
+                  {/* Personal Quote - Outside the padded container */}
+        <motion.div
+          variants={fadeInUp}
+          initial="initial"
+          animate="animate"
+          className="flex justify-center mt-6"
+        >
+          <div className="p-6 glass backdrop-blur-md rounded-2xl max-w-2xl">
             <blockquote className="text-lg italic text-center">
-              <p className="mb-4">
+              <p>
                 "Bu hayat gerçekten benim mi? sorusuyla başlayan bir içsel kalkışma..."
               </p>
               <footer className="text-sm text-muted-foreground">
                 — Seda Tokmak
               </footer>
             </blockquote>
-          </motion.div>
+          </div>
         </motion.div>
+        </motion.div>
+
+
       </div>
     </section>
   )
