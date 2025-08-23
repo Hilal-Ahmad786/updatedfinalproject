@@ -12,7 +12,7 @@ export default function AboutPage() {
         <div className="text-center mb-16">
           <div className="mb-8">
             <img
-              src="/images/authors/seda-tokmak.jpeg"
+              src="/images/authors/logo.png"
               alt="Seda Tokmak"
               className="w-32 h-32 rounded-full mx-auto mb-6 shadow-lg"
             />
