@@ -1,9 +1,11 @@
+//apps/web/componenets/layout/header.tsx
+
 'use client'
 
 import * as React from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { Menu, Search, X } from 'lucide-react'
+import { Menu, Search } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ThemeSwitcher } from './theme-switcher'
 import { MobileMenu } from './mobile-menu'
@@ -41,18 +43,31 @@ export function Header() {
         )}
       >
         <div className="container flex h-16 items-center justify-between">
-          {/* Logo */}
+          {/* Logo with CSS-based Dark/Light Mode */}
           <Link 
             href="/" 
             className="flex items-center space-x-2 font-bold text-xl gradient-text focus-ring rounded-md px-2 py-1"
           >
-           <Image
-            src="/images/logo/logo.png"
-            alt={SITE_CONFIG.name}
-            width={55}
-            height={55}
-            className="rounded-md"
-          />
+            <div className="relative w-[55px] h-[55px]">
+              {/* Light mode logo */}
+              <Image
+                src="/images/logo/logo-light.png"
+                alt={SITE_CONFIG.name}
+                width={55}
+                height={55}
+                className="rounded-md transition-opacity duration-300 dark:opacity-0 dark:invisible opacity-100 visible absolute inset-0"
+                priority
+              />
+              {/* Dark mode logo */}
+              <Image
+                src="/images/logo/logo-dark.png"
+                alt={SITE_CONFIG.name}
+                width={55}
+                height={55}
+                className="rounded-md transition-opacity duration-300 dark:opacity-100 dark:visible opacity-0 invisible absolute inset-0"
+                priority
+              />
+            </div>
             <span className="hidden sm:inline-block">{SITE_CONFIG.name}</span>
           </Link>
 

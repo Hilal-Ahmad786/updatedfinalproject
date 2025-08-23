@@ -11,13 +11,24 @@ export function Footer() {
           {/* Marka */}
           <div className="lg:col-span-1">
             <Link href="/" className="flex items-center space-x-2">
-            <Image
-            src="/images/logo/logo.png"
-            alt={SITE_CONFIG.name}
-            width={55}
-            height={55}
-            className="rounded-md"
-          />
+              <div className="relative w-[55px] h-[55px]">
+                {/* Light mode logo */}
+                <Image
+                  src="/images/logo/logo-light.png"
+                  alt={SITE_CONFIG.name}
+                  width={55}
+                  height={55}
+                  className="rounded-md transition-opacity duration-300 dark:opacity-0 dark:invisible opacity-100 visible absolute inset-0"
+                />
+                {/* Dark mode logo */}
+                <Image
+                  src="/images/logo/logo-dark.png"
+                  alt={SITE_CONFIG.name}
+                  width={55}
+                  height={55}
+                  className="rounded-md transition-opacity duration-300 dark:opacity-100 dark:visible opacity-0 invisible absolute inset-0"
+                />
+              </div>
               <span className="font-bold text-xl gradient-text">{SITE_CONFIG.name}</span>
             </Link>
             <p className="mt-4 text-sm text-muted-foreground max-w-xs">

@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { Mail, Linkedin, Heart, Target, Users } from 'lucide-react'
+import Image from 'next/image'
 
 export default function AboutPage() {
   return (
@@ -11,11 +12,24 @@ export default function AboutPage() {
         {/* Header */}
         <div className="text-center mb-16">
           <div className="mb-8">
-            <img
-              src="/images/authors/logo.png"
-              alt="Seda Tokmak"
-              className="w-32 h-32 rounded-full mx-auto mb-6 shadow-lg"
-            />
+            <div className="relative w-32 h-32 mx-auto mb-6">
+              {/* Light mode logo */}
+              <Image
+                src="/images/logo/logo-light.png"
+                alt="logo"
+                width={128}
+                height={128}
+                className="rounded-full shadow-lg transition-opacity duration-300 dark:opacity-0 dark:invisible opacity-100 visible absolute inset-0"
+              />
+              {/* Dark mode logo */}
+              <Image
+                src="/images/logo/logo-dark.png"
+                alt="logo"
+                width={128}
+                height={128}
+                className="rounded-full shadow-lg transition-opacity duration-300 dark:opacity-100 dark:visible opacity-0 invisible absolute inset-0"
+              />
+            </div>
             <h1 className="text-4xl font-bold tracking-tight sm:text-5xl mb-4">
               Merhaba, Ben <span className="gradient-text">Seda</span>
             </h1>
@@ -51,7 +65,7 @@ export default function AboutPage() {
                 Peki Derdim Ne?
               </h2>
                 <p>
-                "Ben değil, atalar kusurlu" diyerek sıyrılamayacağım bir hayatın tam ortasındayım. Bu yüzden 100leşmeye karar verdim. Yıllar sonra “Hadi ya, bunu niye daha önce bilmiyordum?” dememek için... Şimdi, “Ne yapabilirim?” sorusunun peşindeyim.
+                "Ben değil, atalar kusurlu" diyerek sıyrılamayacağım bir hayatın tam ortasındayım. Bu yüzden 100leşmeye karar verdim. Yıllar sonra "Hadi ya, bunu niye daha önce bilmiyordum?" dememek için... Şimdi, "Ne yapabilirim?" sorusunun peşindeyim.
                 </p>
                 <h2 className="text-2xl font-bold mb-4 flex items-center">
                 <Heart className="mr-2 h-6 w-6 text-primary" />
@@ -62,7 +76,6 @@ export default function AboutPage() {
 Eğer sen de kendinle 100leşmeye cesaret ediyorsan, hoş geldin.
                 </p>
 
-
                 <h2 className="text-2xl font-bold mb-4 flex items-center">
                 <Heart className="mr-2 h-6 w-6 text-primary" />
                 100leşmenin Doğuşu               </h2>
@@ -71,7 +84,7 @@ Eğer sen de kendinle 100leşmeye cesaret ediyorsan, hoş geldin.
                 </p>
 
                 <blockquote className="border-l-4 border-primary pl-4 italic text-lg">
-                “Bu hayat gerçekten benim mi?”                </blockquote>
+                "Bu hayat gerçekten benim mi?"                </blockquote>
               <p>
               O gün durdum. Sadece bir günü, bir kararı ya da bir ilişkiyi değil; koca bir hayatı sorguladım. Kim için yaşıyordum? Ne için karar alıyordum? Ve en önemlisi: Ben kimdim?
                 </p>
@@ -114,7 +127,7 @@ Eğer sen de kendinle 100leşmeye cesaret ediyorsan, hoş geldin.
 
             </div>
             <p className='mt-6'>
-                Benim niyetim, akıl vermek değil. Çünkü çok iyi biliyorum ki: “Tüm akılları pazara çıkarmışlar, herkes yine gidip kendi aklını almış.” Bu yüzden bu yolculukta tek iddiam, kendi yüzleşmemi yazmak. Ve belki de, seni de bu eşlik hâline davet etmek.               
+                Benim niyetim, akıl vermek değil. Çünkü çok iyi biliyorum ki: "Tüm akılları pazara çıkarmışlar, herkes yine gidip kendi aklını almış." Bu yüzden bu yolculukta tek iddiam, kendi yüzleşmemi yazmak. Ve belki de, seni de bu eşlik hâline davet etmek.               
                  </p>
           </CardContent>
         </Card>

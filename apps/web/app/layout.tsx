@@ -1,3 +1,4 @@
+// apps/web/app/layout.tsx - Revert to original
 import type { Metadata, Viewport } from 'next'
 import { Inter, JetBrains_Mono } from 'next/font/google'
 import { Header } from '@/components/layout/header'
