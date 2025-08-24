@@ -176,28 +176,23 @@ function calculateReadTime(content: string): number {
 }
 
 // Get single post by slug
+// Replace the getPostBySlug function in apps/web/lib/hybrid-api.ts with this:
+
 export async function getPostBySlug(slug: string): Promise<Post | null> {
   try {
     console.log(`🔄 Fetching post by slug: ${slug}`);
     
-    // First try to get directly from admin API
-    const adminData = await fetchFromAdmin(`/posts/${slug}`);
-    if (adminData?.post) {
-      console.log(`✅ Found post ${slug} in database`);
-      return formatAdminPost(adminData.post);
-    }
-    
-    // Fallback: get all posts and find by slug
-    console.log(`⚠️ Post ${slug} not found directly, searching all posts...`);
+    // Get all published posts and find by slug
+    console.log(`⚠️ Searching all posts for slug: ${slug}...`);
     const allPosts = await getAllPosts();
     const foundPost = allPosts.find(post => post.slug === slug);
     
     if (foundPost) {
-      console.log(`✅ Found post ${slug} in all posts`);
+      console.log(`✅ Found post ${slug}: ${foundPost.title}`);
       return foundPost;
     }
     
-    console.log(`❌ Post ${slug} not found anywhere`);
+    console.log(`❌ Post ${slug} not found in published posts`);
     return null;
   } catch (error) {
     console.warn(`❌ Failed to fetch post with slug ${slug}:`, error);
