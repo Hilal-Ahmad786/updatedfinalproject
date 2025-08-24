@@ -95,7 +95,7 @@ export function Footer() {
             </p>
             <div className="flex space-x-4 mt-4 sm:mt-0">
               <Link
-                href={SOCIAL_LINKS.email}
+                href="mailto:100lesmeofficial@gmail.com"
                 className="text-muted-foreground hover:text-foreground transition-colors"
                 aria-label="E-posta"
               >
@@ -103,12 +103,23 @@ export function Footer() {
               </Link>
 
               <Link
-                href={SOCIAL_LINKS.instagram}
+                href="https://instagram.com/100_lesmeofficial"
                 className="text-muted-foreground hover:text-foreground transition-colors"
                 aria-label="Instagram"
                 target="_blank"
+                rel="noopener noreferrer"
               >
                 <Instagram className="h-4 w-4" />
+              </Link>
+
+              <Link
+                href="https://www.linkedin.com/company/108661179"
+                className="text-muted-foreground hover:text-foreground transition-colors"
+                aria-label="LinkedIn"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Linkedin className="h-4 w-4" />
               </Link>
             </div>
           </div>

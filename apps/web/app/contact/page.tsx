@@ -161,17 +161,29 @@ export default function ContactPage() {
                     </div>
                   </Link>
                   
-
-
                   <Link 
-                    href="https://instagram.com/100lesmeofficia"
+                    href="https://instagram.com/100_lesmeofficial"
                     target="_blank"
+                    rel="noopener noreferrer"
                     className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors"
                   >
                     <Instagram className="h-5 w-5 text-primary" />
                     <div>
                       <p className="font-medium">Instagram</p>
-                      <p className="text-sm text-muted-foreground">Günlük paylaşımları takip edin</p>
+                      <p className="text-sm text-muted-foreground">@100_lesmeofficial</p>
+                    </div>
+                  </Link>
+
+                  <Link 
+                    href="https://www.linkedin.com/company/108661179"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors"
+                  >
+                    <Linkedin className="h-5 w-5 text-primary" />
+                    <div>
+                      <p className="font-medium">LinkedIn</p>
+                      <p className="text-sm text-muted-foreground">100lesmeofficial</p>
                     </div>
                   </Link>
                 </div>
