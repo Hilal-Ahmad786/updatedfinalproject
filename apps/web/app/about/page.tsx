@@ -50,7 +50,7 @@ export default function AboutPage() {
               <div className="space-y-4 text-muted-foreground">
                 <p>
                 <blockquote className="border-l-4 border-primary pl-4 italic text-lg">
-                Mühendis | Genel Müdür (Global Şirket) | Anne | Dost | Öğrenci | Yazar | Yürüyen bir soru.
+                Mühendis | Profesyonel Çalışan/Yönetici | Anne | Dost | Öğrenci | Yazar | Yürüyen bir soru.
                 </blockquote>
                   
                   Profesyonel hayatın içinde, global bir şirkette genel müdür olarak kararlar veren, "globale ast, lokale üst" modunda yaşayan, ekipler yöneten bir liderim.
